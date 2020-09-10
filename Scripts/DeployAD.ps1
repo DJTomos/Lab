@@ -16,8 +16,7 @@ if (!(Test-Path -Path "c:\temp")) {
 
 $step=1
 
-if (!(Test-Path -Path "$($completeFile)$step")) {
-    <#
+if (!(Test-Path -Path "$($completeFile)$step")) {    
     # Shortcuts
 	if (!(Test-Path -Path "c:\AADLab")) {
 		md "c:\AADLab" -ErrorAction Ignore
@@ -44,8 +43,7 @@ if (!(Test-Path -Path "$($completeFile)$step")) {
 		$Shortcut.TargetPath = $link.site
 		$Shortcut.IconLocation = $link.icon
 		$Shortcut.Save()
-    }
-    #>
+    }    
 
     #record that we got this far
     New-Item -ItemType file "$($completeFile)$step"
