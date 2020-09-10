@@ -15,12 +15,14 @@ if (!(Test-Path -Path "c:\temp")) {
 }
 
 $step=1
+
 if (!(Test-Path -Path "$($completeFile)$step")) {
+    <#
     # Shortcuts
 	if (!(Test-Path -Path "c:\AADLab")) {
 		md "c:\AADLab" -ErrorAction Ignore
 	}
-
+    
 	$WshShell = New-Object -comObject WScript.Shell
 	$dt="C:\Users\Public\Desktop\"
 	$ieicon="%ProgramFiles%\Internet Explorer\iexplore.exe, 0"
@@ -42,7 +44,8 @@ if (!(Test-Path -Path "$($completeFile)$step")) {
 		$Shortcut.TargetPath = $link.site
 		$Shortcut.IconLocation = $link.icon
 		$Shortcut.Save()
-	}
+    }
+    #>
 
     #record that we got this far
     New-Item -ItemType file "$($completeFile)$step"
@@ -58,8 +61,8 @@ if (!(Test-Path -Path "$($completeFile)$step")) {
                            -IncludeAllSubFeature 
 
     Install-ADDSForest -DomainName $domain `
-                       -DomainMode Win2012 `
-                       -ForestMode Win2012 `
+                       -DomainMode Win2012R2 `
+                       -ForestMode Win2012R2 `
                        -Force `
                        -SafeModeAdministratorPassword $smPassword 
 

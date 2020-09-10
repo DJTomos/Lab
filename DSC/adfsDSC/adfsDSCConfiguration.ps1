@@ -62,6 +62,7 @@ Configuration Main
             }
         }
 
+        <#
         Script InstallAADConnect
         {
             SetScript = {
@@ -86,5 +87,6 @@ Configuration Main
             }
             DependsOn  = '[Script]SaveCert','[WindowsFeature]installADFS'
         }
+        #>
     }
 }

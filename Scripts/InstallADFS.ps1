@@ -67,6 +67,7 @@ if (-not $elevated) {
  
 	# Install AAD Tools
 	md c:\temp -ErrorAction Ignore
+	[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12;
 	Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
 
 	#Install-Module -Name Azure -AllowClobber -Force
@@ -77,7 +78,7 @@ if (-not $elevated) {
 	Install-Module -Name AzureAD -Force
 
 	Install-Module -Name AzureADPreview -AllowClobber -Force
-
+	<#
     # Setup Shortcuts
 	md c:\AADLab -ErrorAction Ignore
 
@@ -101,4 +102,5 @@ if (-not $elevated) {
 		$Shortcut.IconLocation = $link.icon
 		$Shortcut.Save()
 	}
+	#>
 }
