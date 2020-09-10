@@ -62,8 +62,7 @@ if (!(Test-Path -Path "$($completeFile)$step")) {
                        -DomainMode Win2012R2 `
                        -ForestMode Win2012R2 `
                        -Force `
-                       -SafeModeAdministratorPassword $smPassword `
-                       -NoRebootOnCompletion
+                       -SafeModeAdministratorPassword $smPassword                        
 
     #record that we got this far
     New-Item -ItemType file "$($completeFile)$step"
