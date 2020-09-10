@@ -13,7 +13,7 @@ $completeFile="c:\temp\prereqsComplete"
 if (!(Test-Path -Path "c:\temp")) {
     md "c:\temp"
 }
-
+Start-Transcript -Path "C:\temp\log.txt"
 $step=1
 
 if (!(Test-Path -Path "$($completeFile)$step")) {    
@@ -108,4 +108,5 @@ if (!(Test-Path -Path "$($completeFile)$step")) {
     #record that we got this far
     New-Item -ItemType file "$($completeFile)$step"
 }
+Stop-Transcript
 
