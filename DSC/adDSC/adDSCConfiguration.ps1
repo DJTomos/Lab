@@ -60,7 +60,7 @@ configuration DomainController
             Ensure = 'Present'
             Name = 'RSAT-ADCS-Mgmt'
         }        
-
+<#
         Script CreateOU
         {
             SetScript = {
@@ -158,7 +158,7 @@ configuration DomainController
         }
 		
 
-        <#
+        
         Script UpdateAdfsSiteGPO
         {
             SetScript = {
