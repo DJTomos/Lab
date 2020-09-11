@@ -41,14 +41,7 @@
       "metadata": {
         "description": "When deploying the stack N times, define the instance - this will be appended to some resource names to avoid collisions."
       }
-    },
-    "assetLocation": {
-      "type": "string"
-    },
-    "dmzSubnetName": {
-      "type": "string",
-      "defaultValue": "adSubnet"
-    },
+    },    
     "location": {
       "type": "string",
       "metadata": {
@@ -76,7 +69,7 @@
   },
   "variables": {    
     "shortDomainName": "[split(parameters('adDomainName'),'.')[0]]",    
-    "adcsNICName": "[concat('adfs-',parameters('NetworkInterfaceName'),parameters('deploymentNumber'))]",
+    "adcsNICName": "[concat('adcs-',parameters('NetworkInterfaceName'))]",
     "adcsPubIpName": "[concat('ADCSPubIP', parameters('deploymentNumber'))]",
     "adSubnetID": "[concat(variables('vnetID'),'/subnets/',parameters('adSubnetName'))]",
     "apiVersion": "2015-06-15",
