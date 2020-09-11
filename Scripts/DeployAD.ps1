@@ -23,19 +23,13 @@ if (!(Test-Path -Path "$($completeFile)$step")) {
 	}
     
 	$WshShell = New-Object -comObject WScript.Shell
-	$dt="C:\Users\Public\Desktop\"
-	$ieicon="%ProgramFiles%\Internet Explorer\iexplore.exe, 0"
+	$dt="C:\Users\Public\Desktop\"	
 
-	$links = @(
-		@{site="http://connect.microsoft.com/site1164";name="Azure AD Connect Home";icon=$ieicon},
-		@{site="https://docs.microsoft.com/en-us/azure/active-directory/connect/active-directory-aadconnect";name="Azure AD Docs";icon=$ieicon},
-		@{site="http://connect.microsoft.com/site1164/Downloads/DownloadDetails.aspx?DownloadID=59185";name="Download Azure AD Powershell";icon=$ieicon},
+	$links = @(	
 		@{site="%windir%\system32\WindowsPowerShell\v1.0\PowerShell_ISE.exe";name="PowerShell ISE";icon="%SystemRoot%\system32\WindowsPowerShell\v1.0\powershell_ise.exe, 0"},
 		@{site="%SystemRoot%\system32\dsa.msc";name="AD Users and Computers";icon="%SystemRoot%\system32\dsadmin.dll, 0"},
 		@{site="%SystemRoot%\system32\domain.msc";name="AD Domains and Trusts";icon="%SystemRoot%\system32\domadmin.dll, 0"},
-		@{site="%SystemRoot%\system32\dnsmgmt.msc";name="DNS";icon="%SystemRoot%\system32\dnsmgr.dll, 0"},
-		@{site="%windir%\system32\services.msc";name="Services";icon="%windir%\system32\filemgmt.dll, 0"},
-		@{site="c:\AADLab";name="AAD Lab Files";icon="%windir%\explorer.exe, 13"}
+		@{site="%SystemRoot%\system32\dnsmgmt.msc";name="DNS";icon="%SystemRoot%\system32\dnsmgr.dll, 0"}
 	)
 
 	foreach($link in $links){
