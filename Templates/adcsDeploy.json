@@ -134,8 +134,7 @@
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[parameters('adcsVMName')]",
-      "location": "[parameters('location')]",      
-      "tags": { "displayName": "adcsVM" },
+      "location": "[parameters('location')]",    
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('adcsNicName'))]"
       ],
