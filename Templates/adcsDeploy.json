@@ -82,7 +82,7 @@
   },
   "variables": {    
     "shortDomainName": "[split(parameters('adDomainName'),'.')[0]]",
-    "adfsNetworkArr": "[split(parameters('adfsIP'),'.')]",    
+    "adfsNetworkArr": "[split(parameters('adcsIP'),'.')]",    
     "adfsNetworkString": "[concat(variables('adfsNetworkArr')[0],'.',variables('adfsNetworkArr')[1],'.',variables('adfsNetworkArr')[2],'.')]",
     "DSCTemplate": "[concat(parameters('assetLocation'),'DSC/adfsDSC.zip')]",
     "adfsDSCConfigurationFunction": "adfsDSCConfiguration.ps1\\Main",
