@@ -372,7 +372,7 @@
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/extensions',variables('adVMName'),'/Microsoft.Powershell.DSC')]"      
+        "[concat('Microsoft.Compute/virtualMachines/extensions/',variables('adVMName'),'/Microsoft.Powershell.DSC')]"      
       ],
       "tags": {
         "displayName": "adcsDSC"
