@@ -3,24 +3,10 @@ $DscWorkingFolder = $PSScriptRoot
 configuration DomainController
 {
    param
-   (
-        [Parameter(Mandatory)]
-        [String]$Subject,
-
-        [Parameter(Mandatory)]
-        [Int]$ADFSFarmCount,
+   (        
 
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
-
-        [Parameter(Mandatory)]
-        [String]$ADFSIPAddress,
-
-		[Parameter(Mandatory)]
-		[Object]$usersArray,
-
-		[Parameter(Mandatory)]
-		[System.Management.Automation.PSCredential]$UserCreds,
 
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30

@@ -390,7 +390,7 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "modulesUrl": "[variables('adcsDSCTemplate')]",
-          "configurationFunction": "[variables('adcsDSCConfigurationFunction')]",
+          "configurationFunction": "[variables('adcsDSCConfigurationFunction')]",          
           "properties": [            
             {
               "Name": "AdminCreds",
@@ -399,7 +399,7 @@
                 "Password": "PrivateSettingsRef:AdminPassword"
               },
               "TypeName": "System.Management.Automation.PSCredential"
-            } 
+            }            
           ]
         },
         "protectedSettings": {
