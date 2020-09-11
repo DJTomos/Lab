@@ -61,10 +61,7 @@
       "metadata": {
         "description": "This is the prefix name of the Network interfaces"
       }
-    },
-    "publicIPAddressDNSName": {
-      "type": "string"
-    },
+    },    
     "virtualNetworkName": {
       "type": "string",
       "defaultValue": "vnet"
@@ -97,8 +94,7 @@
     "domainJoinOptions": "3",
     "imageOffer": "WindowsServer",
     "imagePublisher": "MicrosoftWindowsServer",
-    "imageSKU": "2019-Datacenter",
-    "publicIPAddressDNSName": "[tolower(parameters('publicIPAddressDNSName'))]",
+    "imageSKU": "2019-Datacenter",    
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]" 
   },
   "resources": [
