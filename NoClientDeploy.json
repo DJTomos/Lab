@@ -346,7 +346,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
-        "Microsoft.Resources/Deployments/virtualNetwork"
+        "[concat('Microsoft.Compute/virtualMachines/extensions/', variables('adVMName'),'/Microsoft.Powershell.DSC')]"
       ],
       "properties": {
         "mode": "Incremental",
