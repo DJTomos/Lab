@@ -27,6 +27,11 @@
       "defaultValue": "TomTest",
       "metadata": { "description": "Two-part internal AD name - short/NB name will be first part ('contoso')." }
     },
+    "machinePrefix": {
+      "type": "string",
+      "defaultValue": "TST",
+      "metadata": { "description": "Prefix for hostname of VMs" }
+    },
     "usersArray": {
       "type": "array",
       "defaultValue": [
@@ -108,14 +113,14 @@
   "variables": {
     "adfsDeployCount": "[int(parameters('AdfsFarmCount'))]",
     "networkInterfaceName": "NIC",
-    "addcVMNameSuffix": "dc",
-    "adcsVMNameSuffix": "cs",
-    "adfsVMNameSuffix": "fs",
-    "wapVMNameSuffix": "px",
+    "addcVMNameSuffix": "-dc",
+    "adcsVMNameSuffix": "-cs",
+    "adfsVMNameSuffix": "-fs",
+    "wapVMNameSuffix": "-px",
     "location": "[resourceGroup().location]",
-    "companyNamePrefix": "[split(parameters('adDomainName'),'.')[0]]",
-    "adfsVMName": "[toupper(concat(variables('companyNamePrefix'), variables('adfsVMNameSuffix')))]",
-    "adVMName": "[toupper(concat(variables('companyNamePrefix'), variables('addcVMNameSuffix')))]",
+    "companyNamePrefix": "[split(parameters('adDomainName'),'.')[0]]",    
+    "adfsVMName": "[toupper(concat(parameters('machinePrefix'), variables('adfsVMNameSuffix')))]",
+    "adVMName": "[toupper(concat(parameters('machinePrefix'), variables('addcVMNameSuffix')))]",
     "adNSGName": "[concat('INT-AD', parameters('deploymentNumber'))]",
     "virtualNetworkName": "[concat(variables('companyNamePrefix'), parameters('deploymentNumber'), '-vnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
@@ -149,7 +154,7 @@
     "adcsTemplateURI": "[concat(parameters('assetLocation'),'Templates/adcsDeploy.json')]",
     "adcsDSCTemplate": "[concat(parameters('assetLocation'),'DSC/adcsDSC.zip')]",
     "adcsDSCConfigurationFunction": "adcsDSCConfiguration.ps1\\DomainController",
-    "adcsVMName": "[toupper(concat(variables('companyNamePrefix'), variables('adcsVMNameSuffix')))]",
+    "adcsVMName": "[toupper(concat(parameters('machinePrefix'), variables('adcsVMNameSuffix')))]",
     "subnets": [
       {
         "name": "[variables('adSubnetName')]",
