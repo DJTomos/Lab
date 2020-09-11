@@ -261,7 +261,7 @@
       }
     },
     {
-      "name": "[variables('adVMName')]",
+      "name": "[concat(variables('adVMName'),'/Microsoft.Powershell.DSC')]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",
@@ -346,7 +346,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/extensions/', variables('adVMName'))]"
+        "Microsoft.Resources/Deployments/adVMs"
       ],
       "properties": {
         "mode": "Incremental",
