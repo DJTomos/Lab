@@ -249,6 +249,7 @@
           "networkInterfaces": [
             {
               "id": "[resourceid('Microsoft.Network/networkInterfaces', concat(variables('adfsNICName'), copyIndex(1)))]"
+              "id": "[resourceid('Microsoft.Network/networkInterfaces', variables('adNicName'))]"
             }
           ]
         }

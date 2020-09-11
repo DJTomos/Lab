@@ -87,7 +87,7 @@
       "properties": {
         "ipConfigurations": [
           {
-            "name": "[concat('ipconfig', parameters('deploymentNumber'))]",
+            "name": "ipconfig",
             "properties": {
               "privateIPAllocationMethod": "Static",
               "subnet": {
@@ -130,8 +130,8 @@
         },
         "networkProfile": {
           "networkInterfaces": [
-            {
-              "id": "[concat('Microsoft.Network/networkInterfaces/', variables('adcsNicName'))]"
+            {              
+              "id": "[resourceid('Microsoft.Network/networkInterfaces', variables('adcsNicName'))]"
             }
           ]
         }
