@@ -76,31 +76,13 @@
     "imageSKU": "2019-Datacenter",    
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]" 
   },
-  "resources": [
-    {
-      "name": "[variables('adcsPubIpName')]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "location": "[parameters('location')]",      
-      "apiVersion": "[variables('apiVersion')]",
-      "tags": {
-        "displayName": "adcsPubIp"
-      },
-      "properties": {
-        "publicIPAllocationMethod": "Dynamic",
-        "dnsSettings": {
-          "domainNameLabel": "[tolower(parameters('adcsVMName'))]"
-        }
-      }
-    },    
+  "resources": [        
     {
       "apiVersion": "2015-06-15",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('adcsNicName')]",
       "location": "[parameters('location')]",
-      "tags": { "displayName": "adcsNIC" },
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('adcsPubIPName'))]"
-      ],
+      "tags": { "displayName": "adcsNIC" },     
       "properties": {
         "ipConfigurations": [
           {

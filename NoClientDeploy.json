@@ -145,7 +145,7 @@
     "DeployADFSFarmTemplateUri": "[concat(parameters('assetLocation'), 'Scripts/InstallADFS.ps1')]",
     "CopyCertToWAPTemplate": "CopyCertToWAP.ps1",
     "CopyCertToWAPTemplateUri": "[concat(parameters('assetLocation'), 'Scripts/CopyCertToWAP.ps1')]",
-    "adDSCConfigurationFunction": "adCSCConfiguration.ps1\\DomainController",
+    "adDSCConfigurationFunction": "adDSCConfiguration.ps1\\DomainController",
     "adcsTemplateURI": "[concat(parameters('assetLocation'),'Templates/adcsDeploy.json')]",
     "adcsDSCTemplate": "[concat(parameters('assetLocation'),'DSC/adcsDSC.zip')]",
     "adcsDSCConfigurationFunction": "adcsDSCConfiguration.ps1\\DomainController",
@@ -372,7 +372,7 @@
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
-        "Microsoft.Resources/Deployments/adcsVMs"
+        "[concat('Microsoft.Compute/virtualMachines/extensions',variables('adVMName'),'/Microsoft.Powershell.DSC')]"      
       ],
       "tags": {
         "displayName": "adcsDSC"
