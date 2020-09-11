@@ -65,8 +65,7 @@
   },
   "variables": {    
     "shortDomainName": "[split(parameters('adDomainName'),'.')[0]]",    
-    "adcsNICName": "[concat('adcs-',parameters('NetworkInterfaceName'))]",
-    "adcsPubIpName": "[concat('ADCSPubIP', parameters('deploymentNumber'))]",
+    "adcsNICName": "[concat('adcs-',parameters('NetworkInterfaceName'))]",    
     "adSubnetID": "[concat(variables('vnetID'),'/subnets/',parameters('adSubnetName'))]",
     "apiVersion": "2015-06-15",
     "computeApiVersion": "2016-04-30-preview",    
@@ -82,7 +81,9 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('adcsNicName')]",
       "location": "[parameters('location')]",
-      "tags": { "displayName": "adcsNIC" },     
+      "tags": { 
+        "displayName": "adcsNIC" 
+      },     
       "properties": {
         "ipConfigurations": [
           {
@@ -92,15 +93,12 @@
               "subnet": {
                 "id": "[variables('adSubnetID')]"
               },
-              "privateIPAddress": "[parameters('adcsIP')]",
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('adcsPubIPName'))]"
-              }
+              "privateIPAddress": "[parameters('adcsIP')]"              
             }
           }
         ]
       }
-    },
+    },    
     {
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
