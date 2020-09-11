@@ -217,7 +217,7 @@
       }
     },
     {
-      "name": "adVMs",
+      "name": "[concat(variables('adVMName'),'-VM')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
@@ -247,7 +247,7 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
-        "Microsoft.Resources/Deployments/adVMs"
+        "[concat('Microsoft.Resources/Deployments/',variables('adVMName'),'-VM')]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -266,7 +266,7 @@
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
-        "Microsoft.Resources/Deployments/adVMs"
+        "[concat('Microsoft.Resources/Deployments/',variables('adVMName'),'-VM')]"
       ],
       "tags": {
         "displayName": "adDSC"
@@ -342,7 +342,7 @@
 
 
     {
-      "name": "adcsVMs",
+      "name": "[concat(variables('adcsVMName'),'-VM')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [
@@ -372,7 +372,7 @@
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",
       "dependsOn": [        
-        "Microsoft.Resources/Deployments/adcsVMs"  
+        "[concat('Microsoft.Resources/Deployments/',variables('adcsVMName'),'-VM')]" 
       ],
       "tags": {
         "displayName": "adcsDSC"
