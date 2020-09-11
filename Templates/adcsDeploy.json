@@ -177,7 +177,7 @@
       "name": "[concat(parameters('adcsVMName'), '/joindomain')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "adcsVM"
+        "[concat('Microsoft.Compute/virtualMachines/', concat(parameters('adcsVMName')))]"
       ],
       "tags": {
         "displayName": "adcsVMJoin",
