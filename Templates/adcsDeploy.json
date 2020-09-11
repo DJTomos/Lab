@@ -72,20 +72,10 @@
       "metadata": {
         "description": "This is the allowed list of VM sizes"
       }
-    },
-    "AdfsFarmCount": {
-      "type": "string",
-      "defaultValue": "1",
-      "allowedValues": [ "1", "2", "3", "4", "5" ],
-      "metadata": { "description": "An ADFS/WAP server combo will be setup independently this number of times. NOTE: it's unlikely to ever need more than one - additional farm counts are for edge case testing." }
-    }
+    }    
   },
   "variables": {    
-    "shortDomainName": "[split(parameters('adDomainName'),'.')[0]]",
-    "adfsNetworkArr": "[split(parameters('adcsIP'),'.')]",    
-    "adfsNetworkString": "[concat(variables('adfsNetworkArr')[0],'.',variables('adfsNetworkArr')[1],'.',variables('adfsNetworkArr')[2],'.')]",
-    "DSCTemplate": "[concat(parameters('assetLocation'),'DSC/adfsDSC.zip')]",
-    "adfsDSCConfigurationFunction": "adfsDSCConfiguration.ps1\\Main",
+    "shortDomainName": "[split(parameters('adDomainName'),'.')[0]]",    
     "adcsNICName": "[concat('adfs-',parameters('NetworkInterfaceName'),parameters('deploymentNumber'))]",
     "adcsPubIpName": "[concat('ADCSPubIP', parameters('deploymentNumber'))]",
     "adSubnetID": "[concat(variables('vnetID'),'/subnets/',parameters('adSubnetName'))]",
