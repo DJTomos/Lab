@@ -145,8 +145,10 @@
     "DeployADFSFarmTemplateUri": "[concat(parameters('assetLocation'), 'Scripts/InstallADFS.ps1')]",
     "CopyCertToWAPTemplate": "CopyCertToWAP.ps1",
     "CopyCertToWAPTemplateUri": "[concat(parameters('assetLocation'), 'Scripts/CopyCertToWAP.ps1')]",
-    "adDSCConfigurationFunction": "adDSCConfiguration.ps1\\DomainController",
+    "adDSCConfigurationFunction": "adCSCConfiguration.ps1\\DomainController",
     "adcsTemplateURI": "[concat(parameters('assetLocation'),'Templates/adcsDeploy.json')]",
+    "adcsDSCTemplate": "[concat(parameters('assetLocation'),'DSC/adcsDSC.zip')]",
+    "adcsDSCConfigurationFunction": "adcsDSCConfiguration.ps1\\DomainController",
     "adcsVMName": "[toupper(concat(variables('companyNamePrefix'), variables('adcsVMNameSuffix')))]",
     "subnets": [
       {
@@ -408,3 +410,5 @@
 
   }
 }
+
+
