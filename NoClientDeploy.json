@@ -395,6 +395,7 @@
 
 
 
+
     {
       "name": "[concat(variables('adfsVMName'),'-VM')]",
       "type": "Microsoft.Resources/deployments",
