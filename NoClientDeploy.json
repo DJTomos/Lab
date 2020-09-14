@@ -442,7 +442,7 @@
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",      
       "dependsOn": [        
-        "[concat('Microsoft.Resources/deployments',variables('adfsVMName'),'-VM and ', variables('wapVMName'),'-VM')]"      
+        "[concat('Microsoft.Resources/deployments/',variables('adfsVMName'),'-VM and ', variables('wapVMName'),'-VM')]"      
       ],
       "tags": {
         "displayName": "adfsDSC"
@@ -504,7 +504,7 @@
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",      
       "dependsOn": [
-        "[concat('Microsoft.Resources/deployments',variables('adfsVMName'),'-VM and ', variables('wapVMName'),'-VM')]"
+        "[concat('Microsoft.Resources/deployments/',variables('adfsVMName'),'-VM and ', variables('wapVMName'),'-VM')]"
       ],
       "tags": {
         "displayName": "wapDSCPrep"
