@@ -6,10 +6,7 @@ configuration DomainController
    (
         [Parameter(Mandatory)]
         [String]$Subject,
-
-        [Parameter(Mandatory)]
-        [Int]$ADFSFarmCount,
-
+        
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
 
