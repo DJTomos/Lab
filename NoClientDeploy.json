@@ -396,7 +396,7 @@
 
 
     {
-      "name": "adfsVMs",
+      "name": "[concat(variables('adfsVMName'),'-VM')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [                
@@ -430,7 +430,7 @@
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",      
       "dependsOn": [        
-        "Microsoft.Resources/deployments/adfsVMs"      
+        "[concat('Microsoft.Resources/Deployments/',variables('adfsVMName'),'-VM')]"      
       ],
       "tags": {
         "displayName": "adfsDSC"
@@ -485,68 +485,12 @@
           "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('DeployADFSFarmTemplate'), ' -Acct ', parameters('adminUsername'), ' -PW ', parameters('adminPassword'), ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
         }
       }
-    },
-    {
-      "name": "[concat(variables('wapVMName'),'/Microsoft.Powershell.DSC')]",
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "location": "[variables('location')]",
-      "apiVersion": "2015-06-15",      
-      "dependsOn": [
-        "Microsoft.Resources/deployments/adfsVMs"
-      ],
-      "tags": {
-        "displayName": "wapDSCPrep"
-      },
-      "properties": {
-        "publisher": "Microsoft.Powershell",
-        "type": "DSC",
-        "typeHandlerVersion": "2.21",
-        "autoUpgradeMinorVersion": false,
-        "settings": {
-          "modulesUrl": "[variables('adfsDSCTemplate')]",
-          "configurationFunction": "[variables('wapDSCConfigurationFunction')]",
-          "properties": []
-        }
-      }
-    },
-    {
-      "name": "[concat(variables('wapVMName'), '/CopyCertToWAP')]",
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "location": "[variables('location')]",
-      "apiVersion": "2015-06-15",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', variables('wapVMName'),'/extensions/Microsoft.Powershell.DSC')]",
-        "[concat('Microsoft.Compute/virtualMachines/', variables('adfsVMName'),'/extensions/InstallADFS')]"
-      ],     
-      "tags": {
-        "displayName": "ConfigureWAP"
-      },
-      "properties": {
-        "publisher": "Microsoft.Compute",
-        "type": "CustomScriptExtension",
-        "typeHandlerVersion": "1.9",
-        "autoUpgradeMinorVersion": true,
-        "forceUpdateTag": "1.0.1",
-        "settings": {
-          "fileUris": [
-            "[variables('CopyCertToWAPTemplateUri')]"
-          ],
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CopyCertToWAPTemplate'), ' -DCFQDN ', concat(variables('adVMName'), '.', parameters('adDomainName')), ' -adminuser ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
-        }
-      }
-    },
-
-
-
-
-
-
-
+    },  
 
 
 
     {
-      "name": "adfsVMs",
+      "name": "[concat(variables('wapVMName'),'-VM')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [                
@@ -580,7 +524,7 @@
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",      
       "dependsOn": [
-        "Microsoft.Resources/deployments/adfsVMs"
+        "[concat('Microsoft.Resources/Deployments/',variables('wapVMName'),'-VM')]" 
       ],
       "tags": {
         "displayName": "wapDSCPrep"
