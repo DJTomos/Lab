@@ -8,13 +8,11 @@
     [Parameter(Mandatory)]
     [string]$password,
 
-	[Parameter(Mandatory)]
-	[int]$instance,
 
 	[Parameter(Mandatory)]
 	[string]$WapFqdn
 )
-
+$instance = 1
 $ErrorActionPreference = "Stop"
 $arr = $DCFQDN.split('.')
 $DomainName = $arr[1]

@@ -1,6 +1,6 @@
 $DscWorkingFolder = $PSScriptRoot
 
-configuration DomainController
+configuration CertificateServices
 {
    param
    (        
