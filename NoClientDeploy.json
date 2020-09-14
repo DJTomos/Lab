@@ -404,8 +404,8 @@
       "name": "adfsVMs",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "[concat(variables('adcsVMName'),'/Microsoft.Powershell.DSC')]"
+      "dependsOn": [        
+        "[concat('Microsoft.Resources/Deployments/',variables('adcsVMName'),'/Microsoft.Powershell.DSC')]" 
       ],
       "properties": {
         "mode": "Incremental",
@@ -473,8 +473,8 @@
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",
-      "dependsOn": [
-        "[concat(variables('adfsVMName'), '/Microsoft.Powershell.DSC')]"
+      "dependsOn": [                
+        "[concat('Microsoft.Compute/virtualMachines/', variables('adfsVMName'),'/extensions/Microsoft.Powershell.DSC')]"
       ],      
       "tags": {
         "displayName": "DeployADFSFarm"
@@ -521,8 +521,8 @@
       "location": "[variables('location')]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
-        "[concat(variables('wapVMName'),'/Microsoft.Powershell.DSC')]",
-        "[concat(variables('adfsVMName'), '/InstallADFS')]"
+        "[concat('Microsoft.Compute/virtualMachines/', variables('wapVMName'),'/extensions/Microsoft.Powershell.DSC')]",
+        "[concat('Microsoft.Compute/virtualMachines/', variables('adfsVMName'),'/extensions/InstallADFS')]"
       ],     
       "tags": {
         "displayName": "ConfigureWAP"
