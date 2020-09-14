@@ -115,10 +115,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('adfsNICName')]",
       "location": "[parameters('location')]",      
-      "tags": { "displayName": "adfsNIC" },
-      "dependsOn": [
-        "[variables('adfsPubIpName')]"
-      ],
+      "tags": { "displayName": "adfsNIC" },      
       "properties": {
         "ipConfigurations": [
           {
