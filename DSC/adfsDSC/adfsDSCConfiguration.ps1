@@ -32,6 +32,7 @@ Configuration Main
             Name   = "ADFS-Federation"
         }
 
+        <#
         Script SaveCert
         {
             SetScript  = {
@@ -61,7 +62,7 @@ Configuration Main
                 return ($cert -ine $null)   #if not null (if we have the cert) return true
             }
         }
-
+        #>
         <#
         Script InstallAADConnect
         {
