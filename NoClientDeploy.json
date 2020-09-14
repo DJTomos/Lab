@@ -400,12 +400,6 @@
 
 
 
-
-
-
-
-
-
     {
       "name": "adfsVMs",
       "type": "Microsoft.Resources/deployments",
