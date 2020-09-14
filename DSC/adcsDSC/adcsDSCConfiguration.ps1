@@ -19,12 +19,6 @@ configuration DomainController
     #$CARootName     = "$($shortDomain.ToLower())-$($ComputerName.ToUpper())-CA"
     #$CAServerFQDN   = "$ComputerName.$DomainName"
 
-	# NOTE: see adfsDeploy.json variable block to see how the internal IP is constructed 
-	#       (punting and reproducing logic here)
-	#$adfsNetworkArr         = $ADFSIPAddress.Split('.')
-	#$adfsStartIpNodeAddress = [int]$adfsNetworkArr[3]
-	#$adfsNetworkString      = "$($adfsNetworkArr[0]).$($adfsNetworkArr[1]).$($adfsNetworkArr[2])."
-
     #$CertPw         = $AdminCreds.Password
     #$ClearPw        = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($CertPw))
 	#$ClearDefUserPw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($UserCreds.Password))
@@ -185,32 +179,6 @@ configuration DomainController
 					return ($Zone -ine $null)
 				}
 			}
-        }
-        #>
-
-        <#
-        Script InstallAADConnect
-        {
-            SetScript = {
-                $AADConnectDLUrl="https://download.microsoft.com/download/B/0/0/B00291D0-5A83-4DE7-86F5-980BC00DE05A/AzureADConnect.msi"
-                $exe="$env:SystemRoot\system32\msiexec.exe"
-
-                $tempfile = [System.IO.Path]::GetTempFileName()
-                $folder = [System.IO.Path]::GetDirectoryName($tempfile)
-
-                $webclient = New-Object System.Net.WebClient
-                $webclient.DownloadFile($AADConnectDLUrl, $tempfile)
-
-                Rename-Item -Path $tempfile -NewName "AzureADConnect.msi"
-                $MSIPath = $folder + "\AzureADConnect.msi"
-
-                Invoke-Expression "& `"$exe`" /i $MSIPath /qn /passive /forcerestart"
-            }
-
-            GetScript =  { @{} }
-            TestScript = { 
-                return Test-Path "$env:TEMP\AzureADConnect.msi" 
-            }
         }
         #>
     }
