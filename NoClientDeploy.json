@@ -331,7 +331,12 @@
           }
         }
       }
-    },  
+    }, 
+
+
+
+
+
     {
       "name": "[concat(variables('adcsVMName'),'-VM')]",
       "type": "Microsoft.Resources/deployments",
@@ -401,11 +406,11 @@
 
 
     {
-      "name": "adfsVMs",
+      "name": "[concat(variables('adfsVMName'),'-VM and ', variables('wapVMName'),'-VM')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
-      "dependsOn": [        
-        "[concat('Microsoft.Resources/Deployments/',variables('adcsVMName'),'/Microsoft.Powershell.DSC')]" 
+      "dependsOn": [                
+        "[concat('Microsoft.Compute/virtualMachines/', variables('adcsVMName'),'/extensions/Microsoft.Powershell.DSC')]" 
       ],
       "properties": {
         "mode": "Incremental",
