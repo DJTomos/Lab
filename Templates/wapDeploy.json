@@ -1,23 +1,10 @@
 ﻿{
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
   "contentVersion": "1.0.0.0",
-  "parameters": {
-    "dmzNSGName": {
-      "type": "string",
-      "defaultValue": "DMZ-WAP"
-    },
+  "parameters": {    
     "adSubnetName": {
       "type": "string",
       "defaultValue": "adSubnet"
-    },
-    "adfsVMName": {
-      "type": "string",
-      "defaultValue": "AZADFS"
-    },
-    "adfsIP": {
-      "type": "string",
-      "metadata": { "description": "The IP Addresses assigned to the ADFS Server. Remember the first IP in a subnet is .4 e.g. 10.0.0.0/16 reserves 10.0.0.0-3. Specify one IP per server - must match numberofVMInstances or deployment will fail.s" },
-      "defaultValue": "10.0.1.5"
     },
     "adDomainName": {
       "type": "string",
@@ -88,45 +75,68 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageSKU": "2019-Datacenter",
     "publicIPAddressDNSName": "[tolower(parameters('publicIPAddressDNSName'))]",
-    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+    "wapDSCConfigurationFunction": "wapDSCConfiguration.ps1\\Main",
+    "wapNICName": "[concat('wap-',parameters('NetworkInterfaceName'))]",
+    "wapPubIpName": "WAPPubIP"
   },
-  "resources": [ 
+  "resources": [    
+    {
+      "name": "[variables('wapPubIpName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[parameters('location')]",      
+      "apiVersion": "[variables('apiVersion')]",
+      "tags": {
+        "displayName": "wapPubIp"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[tolower(variables('publicIPAddressDNSName'))]"
+        }
+      }
+    },    
     {
       "apiVersion": "[variables('apiVersion')]",
       "type": "Microsoft.Network/networkInterfaces",
-      "name": "[variables('adfsNICName')]",
-      "location": "[parameters('location')]",      
-      "tags": { "displayName": "adfsNIC" },      
+      "name": "[variables('wapNICName')]",
+      "location": "[parameters('location')]",     
+      "tags": { "displayName": "wapNIC" },
+      "dependsOn": [
+        "[variables('wapPubIpName')]"
+      ],
       "properties": {
         "ipConfigurations": [
           {
-            "name": "adfsipconfig",
+            "name": "wapipconfig",
             "properties": {
-              "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "[parameters('adfsIP')]" ,              
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('wapPubIpName'))]"
+              },
               "subnet": {
-                "id": "[variables('adSubnetID')]"
+                "id": "[variables('dmzSubnetId')]"
               }
             }
           }
         ]
       }
-    },    
+    }, 
     {
       "apiVersion": "[variables('computeApiVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('adfsVMName')]",
-      "location": "[parameters('location')]",    
-      "tags": { "displayName": "adfsVM" },
+      "name": "[parameters('wapVMName')]",
+      "location": "[parameters('location')]",      
+      "tags": { "displayName": "wapVM" },
       "dependsOn": [
-        "[variables('adfsNICName')]"
+        "[variables('wapNICName')]"
       ],
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[parameters('adfsVMName')]",
+          "computerName": "[parameters('wapVMName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
@@ -144,44 +154,13 @@
         },
         "networkProfile": {
           "networkInterfaces": [
-            {              
-              "id": "[resourceid('Microsoft.Network/networkInterfaces', variables('adfsNICName'))]"
+            {
+              "id": "[resourceid('Microsoft.Network/networkInterfaces', variables('wapNICName'))]"
             }
           ]
         }
-      },
-      "resources": [
-      ]
-    },
-    {
-      "apiVersion": "[variables('apiVersion')]",
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('adfsVMName'), '/joindomain')]",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[parameters('adfsVMName')]"
-      ],
-      "tags": {
-        "displayName": "adfsVMJoin",
-        "isClient": "true"
-      },     
-      "properties": {
-        "publisher": "Microsoft.Compute",
-        "type": "JsonADDomainExtension",
-        "typeHandlerVersion": "1.3",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "Name": "[parameters('adDomainName')]",
-          "OUPath": "",
-          "User": "[concat(variables('shortDomainName'), '\\', parameters('adminUsername'))]",
-          "Restart": "true",
-          "Options": "[variables('domainJoinOptions')]"
-        },
-        "protectedsettings": {
-          "Password": "[parameters('adminPassword')]"
-        }
       }
-    }    
+    }
   ],
   "outputs": {
   }

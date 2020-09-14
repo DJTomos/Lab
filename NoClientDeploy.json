@@ -133,8 +133,9 @@
     "publicIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),parameters('deploymentNumber'),'-adfs'))]",
     "rdpIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-adfs-rdp'))]",
     "storageAccountType": "Standard_LRS",
-    "wapVMName": "[toupper(concat(variables('companyNamePrefix'), variables('wapVMNameSuffix')))]",
+    "wapVMName": "[toupper(concat(parameters('machinePrefix'), variables('wapVMNameSuffix')))]",
     "adfsTemplateURI": "[concat(parameters('assetLocation'),'Templates/adfsDeploy.json')]",
+    "wapTemplateURI": "[concat(parameters('assetLocation'),'Templates/wapDeploy.json')]",
     "nsgTemplateURI": "[concat(parameters('assetLocation'),'Templates/NSGs.json')]",
     "vnetTemplateURI": "[concat(parameters('assetLocation'),'Templates/deployVNet.json')]",
     "vnetDNSTemplateURI": "[concat(parameters('assetLocation'),'Templates/deployVNetDNS.json')]",
@@ -485,6 +486,94 @@
         }
       }
     },
+    {
+      "name": "[concat(variables('wapVMName'),'/Microsoft.Powershell.DSC')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[variables('location')]",
+      "apiVersion": "2015-06-15",      
+      "dependsOn": [
+        "Microsoft.Resources/deployments/adfsVMs"
+      ],
+      "tags": {
+        "displayName": "wapDSCPrep"
+      },
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.21",
+        "autoUpgradeMinorVersion": false,
+        "settings": {
+          "modulesUrl": "[variables('adfsDSCTemplate')]",
+          "configurationFunction": "[variables('wapDSCConfigurationFunction')]",
+          "properties": []
+        }
+      }
+    },
+    {
+      "name": "[concat(variables('wapVMName'), '/CopyCertToWAP')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[variables('location')]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('wapVMName'),'/extensions/Microsoft.Powershell.DSC')]",
+        "[concat('Microsoft.Compute/virtualMachines/', variables('adfsVMName'),'/extensions/InstallADFS')]"
+      ],     
+      "tags": {
+        "displayName": "ConfigureWAP"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.9",
+        "autoUpgradeMinorVersion": true,
+        "forceUpdateTag": "1.0.1",
+        "settings": {
+          "fileUris": [
+            "[variables('CopyCertToWAPTemplateUri')]"
+          ],
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CopyCertToWAPTemplate'), ' -DCFQDN ', concat(variables('adVMName'), '.', parameters('adDomainName')), ' -adminuser ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
+        }
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+    {
+      "name": "adfsVMs",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [                
+        "[concat('Microsoft.Compute/virtualMachines/', variables('adcsVMName'),'/extensions/Microsoft.Powershell.DSC')]" 
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": { "uri": "[variables('wapTemplateURI')]" },
+        "parameters": {
+          "adfsIP": { "value": "[parameters('adfsIP')]" },
+          "adSubnetName": { "value": "[variables('adSubnetName')]" },
+          "adfsVMName": { "value": "[variables('adfsVMName')]" },
+          "adDomainName": { "value": "[parameters('adDomainName')]" },
+          "adminPassword": { "value": "[parameters('adminPassword')]" },
+          "adminUsername": { "value": "[parameters('adminUsername')]" },
+          "assetlocation": { "value": "[parameters('assetLocation')]" },
+          "dmzSubnetName": { "value": "[variables('dmzSubnetName')]" },
+          "dmzNSGName": { "value": "[variables('dmzNSGName')]" },
+          "location": { "value": "[variables('location')]" },
+          "networkInterfaceName": { "value": "[variables('NetworkInterfaceName')]" },
+          "publicIPAddressDNSName": { "value": "[variables('publicIPAddressDNSName')]" },
+          "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
+          "vmSize": { "value": "[parameters('vmSize')]" },
+          "wapVMName": { "value": "[variables('wapVMName')]" }
+        }
+      }
+    },   
     {
       "name": "[concat(variables('wapVMName'),'/Microsoft.Powershell.DSC')]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
