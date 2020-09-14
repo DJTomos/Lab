@@ -157,10 +157,7 @@
     {
       "name": "adfsVMs",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [                
-        "[concat('Microsoft.Compute/virtualMachines/', variables('adcsVMName'),'/extensions/Microsoft.Powershell.DSC')]" 
-      ],
+      "apiVersion": "2015-01-01",      
       "properties": {
         "mode": "Incremental",
         "templateLink": { "uri": "[variables('adfsTemplateURI')]" },
