@@ -20,7 +20,7 @@ configuration CertificateServices
     $CAServerFQDN   = "$ComputerName.$DomainName"
 
 	$CertPw         = $AdminCreds.Password
-	$ClearPw        = [System.Net.NetworkCredential]::new("", $CertPw).Password
+	#$ClearPw        = [System.Net.NetworkCredential]::new("", $CertPw).Password
     #$ClearPw        = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($CertPw))
 	#$ClearDefUserPw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($UserCreds.Password))
 
