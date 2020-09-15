@@ -116,7 +116,7 @@ configuration CertificateServices
 			DependsOn = '[xADCSWebEnrollment]CertSrv'
 		}       
         
-<#
+
 		xCertReq "SSLCert"
 		{
 			CARootName                = "$CARootName"
@@ -152,7 +152,7 @@ configuration CertificateServices
 							}
 			DependsOn  = "[xCertReq]SSLCert"
 		}
-
+		<#
 		Script "UpdateDNS"
 		{
 			SetScript  = {
@@ -175,6 +175,6 @@ configuration CertificateServices
 				return ($Zone -ine $null)
 			}
 		}
-		#>        
+		#>		        
     }
 }

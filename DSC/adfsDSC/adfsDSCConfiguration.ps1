@@ -38,7 +38,7 @@ Configuration Main
             Ensure = "Present"
             Name   = "ADFS-Federation"
         }
-
+<#
         xCertReq "SSLCert"
 		{
 			CARootName                = "$CARootName" 
@@ -53,16 +53,16 @@ Configuration Main
 			AutoRenew                 = $true
 			Credential                = $DomainCreds			
 		}
-
-        <#
+#>
+        
         Script SaveCert
         {
             SetScript  = {
 				#install the certificate(s) that will be used for ADFS Service
                 $cred=$using:DomainCreds
-                $wmiDomain = $using:wmiDomain
-                $DCName = $wmiDomain.DomainControllerName
-                $PathToCert="$DCName\src\*.pfx"
+                #$wmiDomain = $using:wmiDomain
+                #$DCName = $wmiDomain.DomainControllerName
+                $PathToCert="$using:ADCSFQDN\src\*.pfx"
                 $CertFile = Get-ChildItem -Path $PathToCert
 				for ($file=0; $file -lt $CertFile.Count; $file++)
 				{
@@ -75,9 +75,9 @@ Configuration Main
             GetScript =  { @{} }
 
             TestScript = { 
-                $wmiDomain = $using:wmiDomain
-                $DCName = $wmiDomain.DomainControllerName
-                $PathToCert="$DCName\src\*.pfx"
+                #$wmiDomain = $using:wmiDomain
+                #$DCName = $wmiDomain.DomainControllerName
+                $PathToCert="$using:ADCSFQDN\src\*.pfx"
                 $File = Get-ChildItem -Path $PathToCert
                 $Subject=$File.BaseName
                 $cert = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$Subject"} -ErrorAction SilentlyContinue
