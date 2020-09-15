@@ -43,8 +43,7 @@ if (-not $elevated) {
 
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetbiosName}\$($Acct)", $SecPW)
 
-    $Index = $ComputerName.Substring($ComputerName.Length-1,1)
-	$Subject = $WapFqdn -f $Index
+    $Subject = $WapFqdn 
 	Write-Host "Subject: $Subject"
 
     #get thumbprint of certificate
@@ -58,7 +57,7 @@ if (-not $elevated) {
             -Credential $DomainCreds `
             -CertificateThumbprint $cert.thumbprint `
             -FederationServiceName $Subject `
-            -FederationServiceDisplayName "ADFS $Index" `
+            -FederationServiceDisplayName "ADFS" `
             -ServiceAccountCredential $DomainCreds `
             -OverwriteConfiguration
 
