@@ -1,6 +1,6 @@
 ﻿param (
     [Parameter(Mandatory)]
-    [string]$DCFQDN,
+    [string]$ADCSFQDN,
 
     [Parameter(Mandatory)]
     [string]$adminuser,
@@ -14,7 +14,7 @@
 )
 $instance = 1
 $ErrorActionPreference = "Stop"
-$arr = $DCFQDN.split('.')
+$arr = $ADCSFQDN.split('.')
 $DomainName = $arr[1]
 $SecPW=ConvertTo-SecureString $password -AsPlainText -Force
 $File=$null
@@ -27,9 +27,9 @@ md "c:\temp" -ErrorAction Ignore
 md "c:\AADLab" -ErrorAction Ignore
 
 if (!(Test-Path -Path "$($completeFile)0")) {
-    $PathToCert="\\$DCFQDN\src"
-    net use "\\$DCFQDN\src" $password /USER:$adminuser
-    Copy-Item -Path "$PathToCert\*.pfx" -Destination "c:\temp\" -Recurse -Force
+    $PathToCert="\\$ADCSFQDN\src"
+    net use "\\$ADCSFQDN\src" $password /USER:$adminuser
+    #Copy-Item -Path "$PathToCert\*.pfx" -Destination "c:\temp\" -Recurse -Force
     Copy-Item -Path "$PathToCert\*.cer" -Destination "c:\temp\" -Recurse -Force
     #record that we got this far
     New-Item -ItemType file "$($completeFile)0"
@@ -41,6 +41,7 @@ if (!(Test-Path -Path "$($completeFile)1")) {
     $RootPath  = $RootFile.FullName
     $rootCert  = Import-Certificate -CertStoreLocation Cert:\LocalMachine\Root -FilePath $RootPath
 
+	<#
 	#install the certificate that will be used for ADFS Service
     $CertFile  = Get-ChildItem -Path "c:\temp\*.pfx"
 	for ($file=0;$file -lt $CertFile.Count;$file++)
@@ -49,8 +50,9 @@ if (!(Test-Path -Path "$($completeFile)1")) {
 		$CertPath  = $CertFile[$file].FullName
 		$cert      = Import-PfxCertificate -Exportable -Password $SecPW -CertStoreLocation cert:\localmachine\my -FilePath $CertPath
 	}
+	
 
-	$Subject = $WapFqdn -f $instance
+	$Subject = $WapFqdn
     $cert      = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$Subject"} -ErrorAction SilentlyContinue
 
     Install-WebApplicationProxy `
@@ -58,12 +60,13 @@ if (!(Test-Path -Path "$($completeFile)1")) {
         -CertificateThumbprint $cert.Thumbprint`
         -FederationServiceName $Subject
 
+	#>
     #record that we got this far
     New-Item -ItemType file "$($completeFile)1"
 }
-
+<#
 if (!(Test-Path -Path "$($completeFile)2")) {
-	$Subject = $WapFqdn -f $instance
+	$Subject = $WapFqdn
 	$str = @"
 #https://blogs.technet.microsoft.com/rmilne/2015/04/20/adfs-2012-r2-web-application-proxy-re-establish-proxy-trust/
 `$DomainCreds = Get-Credential
@@ -115,4 +118,5 @@ if (!(Test-Path -Path "$($completeFile)3")) {
     #record that we got this far
     New-Item -ItemType file "$($completeFile)3"
 }
+#>
 
