@@ -133,7 +133,7 @@ configuration CertificateServices
 			Credential                = $DomainCreds
 			DependsOn                 = '[Script]ExportRoot'
 		}
-
+<#
 		Script "SaveCert"
 		{
 			SetScript  = {
@@ -153,6 +153,7 @@ configuration CertificateServices
 							}
 			DependsOn  = "[xCertReq]SSLCert"
 		}
+		#>
 		<#
 		Script "UpdateDNS"
 		{
