@@ -1,5 +1,8 @@
 $DscWorkingFolder = $PSScriptRoot
 
+md c:\tom -ErrorAction Ignore
+Start-Transcript -Path "c:\tom\log.txt"
+
 configuration CertificateServices
 {
    param
@@ -180,3 +183,4 @@ configuration CertificateServices
 		#>		        
     }
 }
+Stop-Transcript
