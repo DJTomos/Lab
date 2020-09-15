@@ -154,14 +154,40 @@
     "wapDSCConfigurationFunction": "wapDSCConfiguration.ps1\\Main",
     "WAPPubIpDnsFQDN": "[concat(variables('publicIPAddressDNSName'),'{0}.', toLower(replace(resourceGroup().location,' ','')),'.cloudapp.azure.com')]",
     "subnets": [
-      
+      {
+        "name": "[variables('adSubnetName')]",
+        "properties": {
+          "addressprefix": "[parameters('adSubnetAddressRange')]",
+          "networkSecurityGroup": {
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('adNSGName'))]"
+          }
+        }
+      },
+      {
+        "name": "[variables('dmzSubnetName')]",
+        "properties": {
+          "addressprefix": "[parameters('dmzSubnetAddressRange')]",
+          "networkSecurityGroup": {
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('DMZNSGName'))]"
+          }
+        }
+      },
+      {
+        "name": "[variables('cliSubnetName')]",
+        "properties": {
+          "addressprefix": "[parameters('cliSubnetAddressRange')]",
+          "networkSecurityGroup": {
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('CLINSGName'))]"
+          }
+        }
+      }
     ]
   },
   "resources": [
     {
       "name": "[concat(variables('adcsVMName'),'-VM')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",  
+      "apiVersion": "2015-01-01",     
       "properties": {
         "mode": "Incremental",
         "templateLink": { "uri": "[variables('adcsTemplateURI')]" },
