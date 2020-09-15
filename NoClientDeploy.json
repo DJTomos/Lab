@@ -148,7 +148,11 @@
     "adcsTemplateURI": "[concat(parameters('assetLocation'),'Templates/adcsDeploy.json')]",
     "adcsDSCTemplate": "[concat(parameters('assetLocation'),'DSC/adcsDSC.zip')]",
     "adcsDSCConfigurationFunction": "adcsDSCConfiguration.ps1\\CertificateServices",
-    "adcsVMName": "[toupper(concat(parameters('machinePrefix'), variables('adcsVMNameSuffix')))]",
+    "adcsVMName": "[toupper(concat(parameters('machinePrefix'), variables('adcsVMNameSuffix')))]",    
+    "adfsDSCTemplate": "[concat(parameters('assetLocation'),'DSC/adfsDSC.zip')]",
+    "adfsDSCConfigurationFunction": "adfsDSCConfiguration.ps1\\Main",
+    "wapDSCConfigurationFunction": "wapDSCConfiguration.ps1\\Main",
+    "WAPPubIpDnsFQDN": "[concat(variables('publicIPAddressDNSName'),'{0}.', toLower(replace(resourceGroup().location,' ','')),'.cloudapp.azure.com')]",
     "subnets": [
       {
         "name": "[variables('adSubnetName')]",
@@ -177,11 +181,7 @@
           }
         }
       }
-    ],
-    "adfsDSCTemplate": "[concat(parameters('assetLocation'),'DSC/adfsDSC.zip')]",
-    "adfsDSCConfigurationFunction": "adfsDSCConfiguration.ps1\\Main",
-    "wapDSCConfigurationFunction": "wapDSCConfiguration.ps1\\Main",
-    "WAPPubIpDnsFQDN": "[concat(variables('publicIPAddressDNSName'),'{0}.', toLower(replace(resourceGroup().location,' ','')),'.cloudapp.azure.com')]"
+    ]
   },
   "resources": [
     {
