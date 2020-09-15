@@ -6,8 +6,7 @@ Configuration Main
         [System.Management.Automation.PSCredential]$AdminCreds,
 
         [Parameter(Mandatory)]
-        [String]$ADCSname
-,
+        [String]$ADCSname,
 
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30

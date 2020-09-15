@@ -130,7 +130,7 @@ configuration CertificateServices
 			CertificateTemplate       = 'WebServer'
 			AutoRenew                 = $true
 			Credential                = $DomainCreds
-			DependsOn                 = '[xADCSWebEnrollment]CertSrv'
+			DependsOn                 = '[Script]ExportRoot'
 		}
 
 		Script "SaveCert"
