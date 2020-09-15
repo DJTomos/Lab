@@ -5,14 +5,21 @@ Configuration Main
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
 
+        [Parameter(Mandatory)]
+        [String]$ADCSname
+,
+
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     )
 
     $wmiDomain = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"
     $shortDomain = $wmiDomain.DomainName
+    $domainName = $wmiDomain.DnsForestName
+    $ADCSFQDN = "$ADCSname.$domainName"
+    $CARootName     = "$($shortDomain.ToLower())-$($ADCSname.ToUpper())-CA"
 
-    Import-DscResource -ModuleName PSDesiredStateConfiguration
+    Import-DscResource -ModuleName PSDesiredStateConfiguration,xCertificate
 
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${shortDomain}\$($AdminCreds.UserName)", $AdminCreds.Password)
         
@@ -31,6 +38,21 @@ Configuration Main
             Ensure = "Present"
             Name   = "ADFS-Federation"
         }
+
+        xCertReq "SSLCert"
+		{
+			CARootName                = "$CARootName" 
+			CAServerFQDN              = "$ADCSFQDN"
+			Subject                   = "$Subject"
+			KeyLength                 = 2048
+			Exportable                = $true
+			ProviderName              = '"Microsoft RSA SChannel Cryptographic Provider"'
+			OID                       = '1.3.6.1.5.5.7.3.1'
+			KeyUsage                  = '0xa0'
+			CertificateTemplate       = 'WebServer'
+			AutoRenew                 = $true
+			Credential                = $DomainCreds			
+		}
 
         <#
         Script SaveCert

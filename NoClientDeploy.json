@@ -453,6 +453,11 @@
                 "Password": "PrivateSettingsRef:AdminPassword"
               },
               "TypeName": "System.Management.Automation.PSCredential"
+            },
+            {
+              "Name": "ADCSname",
+              "Value": "[variables('adcsVMName')]",
+              "TypeName": "System.String"
             }
           ]
         },
