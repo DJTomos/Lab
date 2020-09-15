@@ -114,23 +114,23 @@
     "companyNamePrefix": "[split(parameters('adDomainName'),'.')[0]]",    
     "adfsVMName": "[toupper(concat(parameters('machinePrefix'), variables('adfsVMNameSuffix')))]",
     "adVMName": "[toupper(concat(parameters('machinePrefix'), variables('addcVMNameSuffix')))]",
-    "adNSGName": "[concat('INT-AD', parameters('deploymentNumber'))]",
-    "virtualNetworkName": "[concat(variables('companyNamePrefix'), parameters('deploymentNumber'), '-vnet')]",
+    "adNSGName": "INT-AD",
+    "virtualNetworkName": "[concat(variables('companyNamePrefix'), '-vnet')]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-    "adSubnetName": "[concat('adSubnet', parameters('deploymentNumber'))]",
+    "adSubnetName": "adSubnet",
     "adSubnetID": "[concat(variables('vnetID'),'/subnets/',variables('adSubnetName'))]",
     "adTemplateURI": "[concat(parameters('assetLocation'),'Templates/adDeploy.json')]",
     "clientTemplateURI": "[concat(parameters('assetLocation'),'Templates/clientDeploy.json')]",
-    "dmzNSGName": "[concat('DMZ-WAP', parameters('deploymentNumber'))]",
+    "dmzNSGName": "DMZ-WAP",
     "dmzSubnetID": "[concat(variables('vnetID'),'/subnets/',variables('dmzSubnetName'))]",
-    "dmzSubnetName": "[concat('dmzSubnet', parameters('deploymentNumber'))]",
-    "cliNSGName": "[concat('INT-CLI', parameters('deploymentNumber'))]",
+    "dmzSubnetName": "dmzSubnet",
+    "cliNSGName": "INT-CLI",
     "cliSubnetID": "[concat(variables('vnetID'),'/subnets/',variables('cliSubnetName'))]",
-    "cliSubnetName": "[concat('clientSubnet', parameters('deploymentNumber'))]",
+    "cliSubnetName": "clientSubnet",
     "imageOffer": "WindowsServer",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageSKU": "2019-Datacenter",
-    "publicIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),parameters('deploymentNumber'),'-adfs'))]",
+    "publicIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-adfs'))]",
     "rdpIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-adfs-rdp'))]",
     "storageAccountType": "Standard_LRS",
     "wapVMName": "[toupper(concat(parameters('machinePrefix'), variables('wapVMNameSuffix')))]",
@@ -346,8 +346,7 @@
           "location": { "value": "[variables('location')]" },
           "networkInterfaceName": { "value": "[variables('NetworkInterfaceName')]" },
           "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
-          "vmSize": { "value": "[parameters('vmSize')]" },
-          "deploymentNumber": { "value": "[parameters('deploymentNumber')]" }
+          "vmSize": { "value": "[parameters('vmSize')]" }
         }
       }
     },    
@@ -371,7 +370,7 @@
         "settings": {
           "modulesUrl": "[variables('adcsDSCTemplate')]",
           "configurationFunction": "[variables('adcsDSCConfigurationFunction')]",          
-          "properties": [            
+          "properties": [ 
             {
               "Name": "AdminCreds",
               "Value": {
@@ -389,7 +388,6 @@
         }
       }
     },
-
 
 
 

@@ -28,7 +28,7 @@ configuration CertificateServices
 
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${shortDomain}\$($Admincreds.UserName)", $Admincreds.Password)
     
-    Node 'localhost'
+    Node localhost
     {
         LocalConfigurationManager
         {
@@ -87,7 +87,7 @@ configuration CertificateServices
             Credential = $DomainCreds
             DependsOn = '[WindowsFeature]ADCS-Web-Enrollment','[xADCSCertificationAuthority]ADCS'
         }
-        
+        <#
 		Script ExportRoot
 		{
 			SetScript = {
@@ -133,7 +133,7 @@ configuration CertificateServices
 			Credential                = $DomainCreds
 			DependsOn                 = '[Script]ExportRoot'
 		}
-<#
+
 		Script "SaveCert"
 		{
 			SetScript  = {
