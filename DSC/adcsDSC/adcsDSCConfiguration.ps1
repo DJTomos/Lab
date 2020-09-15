@@ -19,9 +19,10 @@ configuration CertificateServices
     $CARootName     = "$($shortDomain.ToLower())-$($ComputerName.ToUpper())-CA"
     $CAServerFQDN   = "$ComputerName.$DomainName"
 
-    $CertPw         = $AdminCreds.Password
-    $ClearPw        = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($CertPw))
-	$ClearDefUserPw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($UserCreds.Password))
+	$CertPw         = $AdminCreds.Password
+	$ClearPw        = [System.Net.NetworkCredential]::new("", $CertPw).Password
+    #$ClearPw        = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($CertPw))
+	#$ClearDefUserPw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($UserCreds.Password))
 
     Import-DscResource -ModuleName xComputerManagement,xNetworking,xSmbShare,xAdcsDeployment,xCertificate,PSDesiredStateConfiguration
 
