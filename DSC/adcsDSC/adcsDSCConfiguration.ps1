@@ -89,7 +89,29 @@ configuration CertificateServices
             IsSingleInstance = 'Yes'
             Credential = $DomainCreds
             DependsOn = '[WindowsFeature]ADCS-Web-Enrollment','[xADCSCertificationAuthority]ADCS'
-        }
+		}
+		Script CopyRoot
+		{
+			SetScript = {
+				$d         = $($using:shortDomain).ToLower()
+				$c         = $($using:ComputerName).ToUpper()
+				$shortname = "$d-$c-CA"
+				Copy-Item -Path "C:\Windows\System32\Certsrv\CertEnroll\*.crt" -Destination "c:\src\$shortname.crt" -Force	
+				
+
+			}
+			TestScript = {					
+					$d         = $($using:shortDomain).ToLower()
+					$c         = $($using:ComputerName).ToUpper()
+					$shortname = "$d-$c-CA"
+					return Test-Path "C:\src\$shortname.crt"
+			}
+			GetScript = { @{} }
+			DependsOn = '[xADCSWebEnrollment]CertSrv'
+		}
+
+
+
         <#
 		Script ExportRoot
 		{
@@ -134,7 +156,7 @@ configuration CertificateServices
 			CertificateTemplate       = 'WebServer'
 			AutoRenew                 = $true
 			Credential                = $DomainCreds
-			DependsOn                 = '[Script]ExportRoot'
+			DependsOn                 = '[Script]CopyRoot'
 		}
 
 		Script "SaveCert"
