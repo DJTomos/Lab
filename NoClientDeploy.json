@@ -152,7 +152,7 @@
     "adfsDSCTemplate": "[concat(parameters('assetLocation'),'DSC/adfsDSC.zip')]",
     "adfsDSCConfigurationFunction": "adfsDSCConfiguration.ps1\\Main",
     "wapDSCConfigurationFunction": "wapDSCConfiguration.ps1\\Main",
-    "WAPPubIpDnsFQDN": "[concat(variables('publicIPAddressDNSName'),'{0}.', toLower(replace(resourceGroup().location,' ','')),'.cloudapp.azure.com')]",
+    "WAPPubIpDnsFQDN": "[concat(variables('publicIPAddressDNSName'), toLower(replace(resourceGroup().location,' ','')),'.cloudapp.azure.com')]",
     "subnets": [
       {
         "name": "[variables('adSubnetName')]",

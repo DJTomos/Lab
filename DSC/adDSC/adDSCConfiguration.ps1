@@ -56,7 +56,24 @@ configuration DomainController
         {
             Ensure = 'Present'
             Name = 'RSAT-ADCS-Mgmt'
-        }        
+        }
+
+    	{
+			SetScript  = {
+							$IPAddress = $using:ADFSIPAddress														
+							$ZoneName = $using:subject
+							Add-DnsServerPrimaryZone -Name $ZoneName -ReplicationScope Forest -PassThru
+							Add-DnsServerResourceRecordA -ZoneName $ZoneName -Name "@" -AllowUpdateAny -IPv4Address $IPAddress
+							}
+
+			GetScript =  { @{} }
+			TestScript = { 
+				$ZoneName = $using:subject
+				$Zone = Get-DnsServerZone -Name $ZoneName -ErrorAction SilentlyContinue
+				return ($Zone -ine $null)
+			}
+		}    		
+		
 <#
         Script CreateOU
         {
