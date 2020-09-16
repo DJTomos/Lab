@@ -378,7 +378,12 @@
                 "Password": "PrivateSettingsRef:AdminPassword"
               },
               "TypeName": "System.Management.Automation.PSCredential"
-            }            
+            },
+            {
+              "Name": "Subject",
+              "Value": "[variables('WAPPubIpDnsFQDN')]",
+              "TypeName": "System.String"
+            }             
           ]
         },
         "protectedSettings": {

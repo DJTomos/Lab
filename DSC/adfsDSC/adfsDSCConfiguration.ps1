@@ -61,7 +61,7 @@ Configuration Main
                 $cred=$using:DomainCreds
                 #$wmiDomain = $using:wmiDomain
                 #$DCName = $wmiDomain.DomainControllerName
-                $PathToCert="$using:ADCSFQDN\src\*.pfx"
+                $PathToCert="\\$using:ADCSFQDN\src\*.pfx"
                 $CertFile = Get-ChildItem -Path $PathToCert
 				for ($file=0; $file -lt $CertFile.Count; $file++)
 				{

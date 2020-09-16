@@ -11,6 +11,9 @@ configuration CertificateServices
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
 
+		[Parameter(Mandatory)]
+        [String]$Subject,
+
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     )
@@ -141,7 +144,7 @@ configuration CertificateServices
 			GetScript = { @{} }
 			DependsOn = '[xADCSWebEnrollment]CertSrv'
 		}       
-        
+        #>
 
 		xCertReq "SSLCert"
 		{
@@ -158,14 +161,14 @@ configuration CertificateServices
 			Credential                = $DomainCreds
 			DependsOn                 = '[Script]CopyRoot'
 		}
-
+		
 		Script "SaveCert"
 		{
 			SetScript  = {
 								$s = $using:subject;								
 								write-verbose "subject = $s";
 								$cert = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$s"}
-								Export-PfxCertificate -FilePath "c:\src\$s.pfx" -Cert $cert -Password (ConvertTo-SecureString $Using:ClearPw -AsPlainText -Force)
+								Export-PfxCertificate -FilePath "c:\src\$s.pfx" -Cert $cert -Password $Admincreds.Password
 							}
 
 			GetScript  = { @{ 
@@ -178,7 +181,7 @@ configuration CertificateServices
 							}
 			DependsOn  = "[xCertReq]SSLCert"
 		}
-		#>
+		
 		<#
 		Script "UpdateDNS"
 		{
