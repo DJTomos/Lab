@@ -84,7 +84,15 @@ configuration CertificateServices
             Ensure = 'Present'
             Name = 'ADCS-Web-Enrollment'
             DependsOn = '[WindowsFeature]ADCS-Cert-Authority','[WindowsFeature]ADCS-Cert-Authority'
-        }
+		}
+		
+
+		WindowsFeature Web-Mgmt-Console
+        {
+            Ensure = 'Present'
+            Name = 'Web-Mgmt-Console'
+            DependsOn = '[WindowsFeature]ADCS-Web-Enrollment'
+		}	
 
         xADCSWebEnrollment CertSrv
         {
@@ -112,9 +120,39 @@ configuration CertificateServices
 			DependsOn = '[xADCSWebEnrollment]CertSrv'
 		}
 
+		
+		Script ConfigureADCS
+		{
+			SetScript = {
+						Import-Module WebAdministration
+						New-Item 'IIS:\Sites\Default Web Site\CertEnroll' -itemtype VirtualDirectory -physicalPath c:\Windows\System32\CertSrv\Certenroll
+						Set-WebConfiguration -Filter /system.webServer/directoryBrowse -Value true -PSPath 'IIS:\Sites\Default Web Site\CertEnroll'
+						C:\Windows\system32\inetsrv\Appcmd.exe set config "Default Web Site" /section:system.webServer/Security/requestFiltering -allowDoubleEscaping:True
+						Set-WebBinding -Name 'Default Web Site' -BindingInformation "*:80:" ‑PropertyName Port -Value 81
+						IISReset		
+						
+						$crllist = Get-CACrlDistributionPoint; foreach ($crl in $crllist) {Remove-CACrlDistributionPoint $crl.uri -Force};
+						Add-CACRLDistributionPoint -Uri "C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl" -PublishToServer -PublishDeltaToServer -Force
+						Add-CACRLDistributionPoint -Uri "http://$Subject`:81/certenroll/%3%8%9.crl" -AddToCertificateCDP -AddToFreshestCrl -Force						
 
+						$aialist = Get-CAAuthorityInformationAccess; foreach ($aia in $aialist) {Remove-CAAuthorityInformationAccess $aia.uri -Force};
+						certutil -setreg CA\CACertPublicationURLs "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt"
+						Add-CAAuthorityInformationAccess -uri "http://$Subject`:81/certEnroll/%1_%3%4.crt" -AddToCertificateAia -Force						
 
-        <#
+						restart-service certsvc
+						start-sleep -s 5
+						certutil -crl
+			}
+			TestScript = {
+					
+					$crl = Get-CACrlDistributionPoint
+					return ($crl -ine $null)
+			}
+			GetScript = { @{} }
+			DependsOn = '[xADCSWebEnrollment]CertSrv'
+		}       
+
+		<#
 		Script ExportRoot
 		{
 			SetScript = {
@@ -179,32 +217,7 @@ configuration CertificateServices
 							return Test-Path "C:\src\$s.pfx" 
 							}
 			DependsOn  = "[xCertReq]SSLCert"
-		}
-		
-		<#
-		Script "UpdateDNS"
-		{
-			SetScript  = {
-							$NodeAddr  = ([int]$($using:instance) + [int]$($using:adfsStartIpNodeAddress)) - 1
-							$IPAddress = "$($using:adfsNetworkString)$NodeAddr"
-
-							$s        = $using:subject;
-							$s        = $s -f $using:instance
-							$ZoneName = $s
-							$Zone     = Add-DnsServerPrimaryZone -Name $ZoneName -ReplicationScope Forest -PassThru
-							$rec      = Add-DnsServerResourceRecordA -ZoneName $ZoneName -Name "@" -AllowUpdateAny -IPv4Address $IPAddress
-							}
-
-			GetScript =  { @{} }
-			TestScript = { 
-				$s        = $using:subject;
-				$s        = $s -f $using:instance
-				$ZoneName = $s
-				$Zone = Get-DnsServerZone -Name $ZoneName -ErrorAction SilentlyContinue
-				return ($Zone -ine $null)
-			}
-		}
-		#>		        
+		}	        
     }
 }
 Stop-Transcript
