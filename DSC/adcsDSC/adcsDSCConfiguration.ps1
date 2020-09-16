@@ -93,15 +93,14 @@ configuration CertificateServices
             Credential = $DomainCreds
             DependsOn = '[WindowsFeature]ADCS-Web-Enrollment','[xADCSCertificationAuthority]ADCS'
 		}
+
 		Script CopyRoot
 		{
 			SetScript = {
 				$d         = $($using:shortDomain).ToLower()
 				$c         = $($using:ComputerName).ToUpper()
 				$shortname = "$d-$c-CA"
-				Copy-Item -Path "C:\Windows\System32\Certsrv\CertEnroll\*.crt" -Destination "c:\src\$shortname.crt" -Force	
-				
-
+				Copy-Item -Path "C:\Windows\System32\Certsrv\CertEnroll\*.crt" -Destination "c:\src\$shortname.crt" -Force
 			}
 			TestScript = {					
 					$d         = $($using:shortDomain).ToLower()
