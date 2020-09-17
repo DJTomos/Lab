@@ -1,7 +1,6 @@
 $DscWorkingFolder = $PSScriptRoot
 
-md c:\tom -ErrorAction Ignore
-Start-Transcript -Path "c:\tom\log.txt"
+
 
 configuration CertificateServices
 {
@@ -17,7 +16,8 @@ configuration CertificateServices
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     )
-    
+    md c:\tom -ErrorAction Ignore
+	Start-Transcript -Path "c:\tom\log.txt"
     $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"
     $shortDomain    = $wmiDomain.DomainName
     $DomainName     = $wmidomain.DnsForestName
@@ -69,7 +69,7 @@ configuration CertificateServices
             Path = "C:\src"
             FullAccess = @("Domain Admins","Domain Computers")
             ReadAccess = "Authenticated Users"
-            DependsOn = "[File]SrcFolder"
+            DependsOn = '[File]SrcFolder'
         }
 
         xADCSCertificationAuthority ADCS
@@ -120,15 +120,14 @@ configuration CertificateServices
 			GetScript = { @{} }
 			DependsOn = '[xADCSWebEnrollment]CertSrv'
 		}
-
 		
 		Script ConfigureADCS
 		{
-			SetScript = {						
-						New-Item 'IIS:\Sites\Default Web Site\CertEnroll' -itemtype VirtualDirectory -physicalPath c:\Windows\System32\CertSrv\Certenroll
-						Set-WebConfiguration -Filter /system.webServer/directoryBrowse -Value true -PSPath 'IIS:\Sites\Default Web Site\CertEnroll'						
+			SetScript = {
+						New-Item 'IIS:\Sites\Default Web Site\CertEnroll' -itemtype VirtualDirectory -physicalPath 'c:\Windows\System32\CertSrv\Certenroll'
+						Set-WebConfiguration -Filter /system.webServer/directoryBrowse -Value true -PSPath 'IIS:\Sites\Default Web Site\CertEnroll'
 						Set-WebConfigurationproperty -Filter /system.webServer/Security/requestFiltering -name allowdoubleescaping -Value true -PSPath 'IIS:\Sites\Default Web Site'
-						Set-WebConfigurationproperty -Filter /system.webServer/Security/requestFiltering -name allowdoubleescaping -Value true -PSPath 'IIS:\Sites\Default Web Site\CertEnroll'						
+						Set-WebConfigurationproperty -Filter /system.webServer/Security/requestFiltering -name allowdoubleescaping -Value true -PSPath 'IIS:\Sites\Default Web Site\CertEnroll'
 						Set-WebBinding -Name 'Default Web Site' -BindingInformation "*:80:" ‑PropertyName Port -Value 81
 						Start-Process "iisreset.exe" -NoNewWindow -Wait	
 						#restart-service w3svc
@@ -137,17 +136,17 @@ configuration CertificateServices
 							Remove-CACrlDistributionPoint $crl.uri -Force
 						}
 						Add-CACRLDistributionPoint -Uri "C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl" -PublishToServer -PublishDeltaToServer -Force
-						Add-CACRLDistributionPoint -Uri "http://$Subject`:81/certenroll/%3%8%9.crl" -AddToCertificateCDP -AddToFreshestCrl -Force						
+						Add-CACRLDistributionPoint -Uri "http://$Subject`:81/certenroll/%3%8%9.crl" -AddToCertificateCDP -AddToFreshestCrl -Force
 
 						$aialist = Get-CAAuthorityInformationAccess
 						foreach ($aia in $aialist) {
 							Remove-CAAuthorityInformationAccess $aia.uri -Force
 						}
 						#certutil -setreg CA\CACertPublicationURLs "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt"
-						Add-CAAuthorityInformationAccess -uri "http://$Subject`:81/certEnroll/%1_%3%4.crt" -AddToCertificateAia -Force						
+						Add-CAAuthorityInformationAccess -uri "http://$Subject`:81/certEnroll/%1_%3%4.crt" -AddToCertificateAia -Force
 
 						restart-service certsvc
-						start-sleep -s 5						
+						start-sleep -s 5
 			}
 			TestScript = {					
 					$crl = Get-CACrlDistributionPoint
@@ -188,7 +187,7 @@ configuration CertificateServices
 		}       
         #>
 
-		xCertReq "SSLCert"
+		xCertReq SSLCert
 		{
 			CARootName                = "$CARootName"
 			CAServerFQDN              = "$ComputerName.$DomainName"
@@ -204,25 +203,25 @@ configuration CertificateServices
 			DependsOn                 = '[Script]ConfigureADCS'
 		}
 		
-		Script "SaveCert"
+		Script SaveCert
 		{
 			SetScript  = {
-								$s = $using:subject;								
-								write-verbose "subject = $s";
-								$cert = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$s"}
-								Export-PfxCertificate -FilePath "c:\src\$s.pfx" -Cert $cert -Password $using:CertPw
-							}
+						$s = $using:subject;								
+						write-verbose "subject = $s";
+						$cert = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$s"}
+						Export-PfxCertificate -FilePath "c:\src\$s.pfx" -Cert $cert -Password $using:CertPw
+			}
 
 			GetScript  = { @{ 
 								$s = $using:subject;								
 								Result = (Get-Content "C:\src\$s.pfx") } 
-							}
+			}
 			TestScript = {
-							$s = $using:subject;							
-							return Test-Path "C:\src\$s.pfx" 
-							}
-			DependsOn  = "[xCertReq]SSLCert"
+						$s = $using:subject;							
+						return Test-Path "C:\src\$s.pfx" 
+			}
+			DependsOn  = '[xCertReq]SSLCert'
 		}	        
-    }
+	}
+	Stop-Transcript
 }
-Stop-Transcript
