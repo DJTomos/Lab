@@ -124,7 +124,7 @@ configuration CertificateServices
 		Script ConfigureADCS
 		{
 			SetScript = {
-				<#
+				
 						New-Item 'IIS:\Sites\Default Web Site\CertEnroll' -itemtype VirtualDirectory -physicalPath 'c:\Windows\System32\CertSrv\Certenroll'
 						Set-WebConfiguration -Filter /system.webServer/directoryBrowse -Value true -PSPath 'IIS:\Sites\Default Web Site\CertEnroll'
 						Set-WebConfigurationproperty -Filter /system.webServer/Security/requestFiltering -name allowdoubleescaping -Value true -PSPath 'IIS:\Sites\Default Web Site'
@@ -132,7 +132,7 @@ configuration CertificateServices
 						Set-WebBinding -Name 'Default Web Site' -BindingInformation "*:80:" ‑PropertyName Port -Value 81
 						Start-Process "iisreset.exe" -NoNewWindow -Wait	
 						#restart-service w3svc
-						
+				<#		
 						$crllist = Get-CACrlDistributionPoint 
 						foreach ($crl in $crllist) {
 							Remove-CACrlDistributionPoint $crl.uri -Force
@@ -153,7 +153,14 @@ configuration CertificateServices
 			}
 			TestScript = {					
 					$crl = Get-CACrlDistributionPoint
-					return ($crl -ine $null)
+					if($crl -eq $null)
+					{
+						return $false
+					}
+					else
+					{
+						return $true
+					}
 			}
 			GetScript = { @{} }
 			DependsOn = '[Script]CopyRoot'
