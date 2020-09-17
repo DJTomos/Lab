@@ -131,11 +131,17 @@ configuration CertificateServices
 						Set-WebBinding -Name 'Default Web Site' -BindingInformation "*:80:" ‑PropertyName Port -Value 81
 						IISReset		
 						
-						$crllist = Get-CACrlDistributionPoint; foreach ($crl in $crllist) {Remove-CACrlDistributionPoint $crl.uri -Force};
+						$crllist = Get-CACrlDistributionPoint 
+						foreach ($crl in $crllist) {
+							Remove-CACrlDistributionPoint $crl.uri -Force
+						}
 						Add-CACRLDistributionPoint -Uri "C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl" -PublishToServer -PublishDeltaToServer -Force
 						Add-CACRLDistributionPoint -Uri "http://$Subject`:81/certenroll/%3%8%9.crl" -AddToCertificateCDP -AddToFreshestCrl -Force						
 
-						$aialist = Get-CAAuthorityInformationAccess; foreach ($aia in $aialist) {Remove-CAAuthorityInformationAccess $aia.uri -Force};
+						$aialist = Get-CAAuthorityInformationAccess
+						foreach ($aia in $aialist) {
+							Remove-CAAuthorityInformationAccess $aia.uri -Force
+						}
 						certutil -setreg CA\CACertPublicationURLs "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt"
 						Add-CAAuthorityInformationAccess -uri "http://$Subject`:81/certEnroll/%1_%3%4.crt" -AddToCertificateAia -Force						
 
@@ -143,8 +149,7 @@ configuration CertificateServices
 						start-sleep -s 5
 						certutil -crl
 			}
-			TestScript = {
-					
+			TestScript = {					
 					$crl = Get-CACrlDistributionPoint
 					return ($crl -ine $null)
 			}
