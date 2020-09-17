@@ -154,7 +154,7 @@ configuration CertificateServices
 					return ($crl -ine $null)
 			}
 			GetScript = { @{} }
-			DependsOn = '[xADCSWebEnrollment]CertSrv'
+			DependsOn = '[Script]CopyRoot'
 		}       
 
 		<#
@@ -201,7 +201,7 @@ configuration CertificateServices
 			CertificateTemplate       = 'WebServer'
 			AutoRenew                 = $true
 			Credential                = $DomainCreds
-			DependsOn                 = '[Script]CopyRoot'
+			DependsOn                 = '[Script]ConfigureADCS'
 		}
 		
 		Script "SaveCert"
