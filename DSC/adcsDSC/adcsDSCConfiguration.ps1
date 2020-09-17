@@ -159,37 +159,6 @@ configuration CertificateServices
 		}   
 		#>    
 
-		<#
-		Script ExportRoot
-		{
-			SetScript = {
-							$arr       = $($using:DomainName).split('.')
-							$d         = $($using:shortDomain).ToLower()
-							$c         = $($using:ComputerName).ToUpper()
-							$shortname = "$d-$c-CA"
-                            $rootName  = "CN={0}, {1}" -f $shortname, [string]::Join(", ", ($arr | % { "DC={0}" -f $_ }))
-
-							$rootcert  = Get-ChildItem Cert:\LocalMachine\CA | where {$_.Subject -eq "$rootName"}
-							if ($rootcert -eq $null) {
-							    Write-Verbose "ERROR: ROOT CERT `"$rootName`" NOT FOUND, cancelling cert export"
-							} else {
-								$root      = if ($rootcert.GetType().BaseType.Name -eq "Array") {$rootCert[0]} else {$rootCert}
-								Export-Certificate -FilePath "c:\src\$shortname.cer" -Cert $root
-							}
-
-						}
-			TestScript = {
-					$arr       = $($using:DomainName).split('.')
-					$d         = $($using:shortDomain).ToLower()
-					$c         = $($using:ComputerName).ToUpper()
-					$shortname = "$d-$c-CA"
-					return Test-Path "C:\src\$shortname.cer"
-			}
-			GetScript = { @{} }
-			DependsOn = '[xADCSWebEnrollment]CertSrv'
-		}       
-        #>
-
 		xCertReq SSLCert
 		{
 			CARootName                = "$CARootName"
