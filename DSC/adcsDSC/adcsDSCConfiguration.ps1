@@ -120,10 +120,11 @@ configuration CertificateServices
 			GetScript = { @{} }
 			DependsOn = '[xADCSWebEnrollment]CertSrv'
 		}
-		<#
+		
 		Script ConfigureADCS
 		{
 			SetScript = {
+				<#
 						New-Item 'IIS:\Sites\Default Web Site\CertEnroll' -itemtype VirtualDirectory -physicalPath 'c:\Windows\System32\CertSrv\Certenroll'
 						Set-WebConfiguration -Filter /system.webServer/directoryBrowse -Value true -PSPath 'IIS:\Sites\Default Web Site\CertEnroll'
 						Set-WebConfigurationproperty -Filter /system.webServer/Security/requestFiltering -name allowdoubleescaping -Value true -PSPath 'IIS:\Sites\Default Web Site'
@@ -148,7 +149,7 @@ configuration CertificateServices
 
 						restart-service certsvc
 						start-sleep -s 5
-						
+				#> 		
 			}
 			TestScript = {					
 					$crl = Get-CACrlDistributionPoint
@@ -157,7 +158,7 @@ configuration CertificateServices
 			GetScript = { @{} }
 			DependsOn = '[Script]CopyRoot'
 		}   
-		#>    
+	   
 
 		xCertReq SSLCert
 		{
@@ -172,7 +173,7 @@ configuration CertificateServices
 			CertificateTemplate       = 'WebServer'
 			AutoRenew                 = $true
 			Credential                = $DomainCreds
-			DependsOn                 = '[Script]CopyRoot'
+			DependsOn                 = '[Script]ConfigureADCS'
 		}
 		
 		Script SaveCert
