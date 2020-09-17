@@ -131,6 +131,7 @@ configuration CertificateServices
 						Set-WebBinding -Name 'Default Web Site' -BindingInformation "*:80:" ‑PropertyName Port -Value 81
 						Start-Process "iisreset.exe" -NoNewWindow -Wait	
 						#restart-service w3svc
+						<#
 						$crllist = Get-CACrlDistributionPoint 
 						foreach ($crl in $crllist) {
 							Remove-CACrlDistributionPoint $crl.uri -Force
@@ -147,6 +148,7 @@ configuration CertificateServices
 
 						restart-service certsvc
 						start-sleep -s 5
+						#>
 			}
 			TestScript = {					
 					$crl = Get-CACrlDistributionPoint
