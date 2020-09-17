@@ -208,18 +208,17 @@ configuration CertificateServices
 		Script SaveCert
 		{
 			SetScript  = {
-						$s = $using:subject;								
-						write-verbose "subject = $s";
+						$s = $using:subject			
+						write-verbose "subject = $s"
 						$cert = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$s"}
 						Export-PfxCertificate -FilePath "c:\src\$s.pfx" -Cert $cert -Password $using:CertPw
 			}
-
 			GetScript  = { @{ 
-								$s = $using:subject;								
+								$s = $using:subject								
 								Result = (Get-Content "C:\src\$s.pfx") } 
 			}
 			TestScript = {
-						$s = $using:subject;							
+						$s = $using:subject							
 						return Test-Path "C:\src\$s.pfx" 
 			}
 			DependsOn  = '[xCertReq]SSLCert'
