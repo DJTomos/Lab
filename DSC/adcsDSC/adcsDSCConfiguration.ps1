@@ -30,7 +30,8 @@ configuration CertificateServices
     #$ClearPw        = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($CertPw))
 	#$ClearDefUserPw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($UserCreds.Password))
 
-    Import-DscResource -ModuleName xComputerManagement,xNetworking,xSmbShare,xAdcsDeployment,xCertificate,PSDesiredStateConfiguration
+	Import-DscResource -ModuleName xComputerManagement,xNetworking,xSmbShare,xAdcsDeployment,xCertificate,PSDesiredStateConfiguration
+	Import-Module WebAdministration
 
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${shortDomain}\$($Admincreds.UserName)", $Admincreds.Password)
     
@@ -123,14 +124,14 @@ configuration CertificateServices
 		
 		Script ConfigureADCS
 		{
-			SetScript = {
-						Import-Module WebAdministration
+			SetScript = {						
 						New-Item 'IIS:\Sites\Default Web Site\CertEnroll' -itemtype VirtualDirectory -physicalPath c:\Windows\System32\CertSrv\Certenroll
-						Set-WebConfiguration -Filter /system.webServer/directoryBrowse -Value true -PSPath 'IIS:\Sites\Default Web Site\CertEnroll'
-						C:\Windows\system32\inetsrv\Appcmd.exe set config "Default Web Site" /section:system.webServer/Security/requestFiltering -allowDoubleEscaping:True
+						Set-WebConfiguration -Filter /system.webServer/directoryBrowse -Value true -PSPath 'IIS:\Sites\Default Web Site\CertEnroll'						
+						Set-WebConfigurationproperty -Filter /system.webServer/Security/requestFiltering -name allowdoubleescaping -Value true -PSPath 'IIS:\Sites\Default Web Site'
+						Set-WebConfigurationproperty -Filter /system.webServer/Security/requestFiltering -name allowdoubleescaping -Value true -PSPath 'IIS:\Sites\Default Web Site\CertEnroll'						
 						Set-WebBinding -Name 'Default Web Site' -BindingInformation "*:80:" ‑PropertyName Port -Value 81
-						IISReset		
-						
+						Start-Process "iisreset.exe" -NoNewWindow -Wait	
+						#restart-service w3svc
 						$crllist = Get-CACrlDistributionPoint 
 						foreach ($crl in $crllist) {
 							Remove-CACrlDistributionPoint $crl.uri -Force
@@ -142,12 +143,11 @@ configuration CertificateServices
 						foreach ($aia in $aialist) {
 							Remove-CAAuthorityInformationAccess $aia.uri -Force
 						}
-						certutil -setreg CA\CACertPublicationURLs "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt"
+						#certutil -setreg CA\CACertPublicationURLs "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt"
 						Add-CAAuthorityInformationAccess -uri "http://$Subject`:81/certEnroll/%1_%3%4.crt" -AddToCertificateAia -Force						
 
 						restart-service certsvc
-						start-sleep -s 5
-						certutil -crl
+						start-sleep -s 5						
 			}
 			TestScript = {					
 					$crl = Get-CACrlDistributionPoint
