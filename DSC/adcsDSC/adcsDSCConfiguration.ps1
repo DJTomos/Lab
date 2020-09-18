@@ -123,14 +123,54 @@ configuration CertificateServices
 		
 		Script ConfigureADCS
 		{
-			SetScript  = {
-				
+			SetScript  = {	
+						$crllist = Get-CACrlDistributionPoint 
+						foreach ($crl in $crllist) {
+							Remove-CACrlDistributionPoint $crl.uri -Force
+						}
+						Add-CACRLDistributionPoint -Uri "C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl" -PublishToServer -PublishDeltaToServer -Force
+						Add-CACRLDistributionPoint -Uri "http://$Subject`:81/certenroll/%3%8%9.crl" -AddToCertificateCDP -AddToFreshestCrl -Force
+
+						$aialist = Get-CAAuthorityInformationAccess
+						foreach ($aia in $aialist) {
+							Remove-CAAuthorityInformationAccess $aia.uri -Force
+						}
+						#certutil -setreg CA\CACertPublicationURLs "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt"
+						Add-CAAuthorityInformationAccess -uri "http://$Subject`:81/certEnroll/%1_%3%4.crt" -AddToCertificateAia -Force
+
+						restart-service certsvc
+						start-sleep -s 5		
+			}
+						<#
 						New-Item "IIS:\Sites\Default Web Site\CertEnroll" -itemtype VirtualDirectory -physicalPath "c:\Windows\System32\CertSrv\Certenroll"
 						Set-WebConfiguration -Filter "/system.webServer/directoryBrowse" -Value true -PSPath "IIS:\Sites\Default Web Site\CertEnroll"
 						Set-WebConfigurationproperty -Filter "/system.webServer/Security/requestFiltering" -name allowdoubleescaping -Value true -PSPath "IIS:\Sites\Default Web Site"
 						Set-WebConfigurationproperty -Filter "/system.webServer/Security/requestFiltering" -name allowdoubleescaping -Value true -PSPath "IIS:\Sites\Default Web Site\CertEnroll"
 						Set-WebBinding -Name "Default Web Site" -BindingInformation "*:80:" ‑PropertyName Port -Value 81
-					}
+
+								Start-Process "iisreset.exe" -NoNewWindow -Wait	
+						#restart-service w3svc
+						
+						
+
+
+
+
+
+
+						If ($Using:Node.CADistinguishedNameSuffix) {
+            & "$($ENV:SystemRoot)\system32\certutil.exe" -setreg CA\DSConfigDN "CN=Configuration,$($Using:Node.CADistinguishedNameSuffix)"
+            & "$($ENV:SystemRoot)\system32\certutil.exe" -setreg CA\DSDomainDN "$($Using:Node.CADistinguishedNameSuffix)"
+        }
+        If ($Using:Node.CRLPublicationURLs) {
+            & "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CRLPublicationURLs $($Using:Node.CRLPublicationURLs)
+        }
+        If ($Using:Node.CACertPublicationURLs) {
+            & "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CACertPublicationURLs $($Using:Node.CACertPublicationURLs)
+        }
+        Restart-Service -Name CertSvc
+				#> 	
+					
 					
 			
 			TestScript = {					
@@ -148,26 +188,7 @@ configuration CertificateServices
 			DependsOn = '[Script]CopyRoot'
 		}   
 	   
-<#		Start-Process "iisreset.exe" -NoNewWindow -Wait	
-						#restart-service w3svc
-						
-						$crllist = Get-CACrlDistributionPoint 
-						foreach ($crl in $crllist) {
-							Remove-CACrlDistributionPoint $crl.uri -Force
-						}
-						Add-CACRLDistributionPoint -Uri "C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl" -PublishToServer -PublishDeltaToServer -Force
-						Add-CACRLDistributionPoint -Uri "http://$Subject`:81/certenroll/%3%8%9.crl" -AddToCertificateCDP -AddToFreshestCrl -Force
 
-						$aialist = Get-CAAuthorityInformationAccess
-						foreach ($aia in $aialist) {
-							Remove-CAAuthorityInformationAccess $aia.uri -Force
-						}
-						#certutil -setreg CA\CACertPublicationURLs "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt"
-						Add-CAAuthorityInformationAccess -uri "http://$Subject`:81/certEnroll/%1_%3%4.crt" -AddToCertificateAia -Force
-
-						restart-service certsvc
-						start-sleep -s 5
-				#> 	
 		xCertReq SSLCert
 		{
 			CARootName                = "$CARootName"
