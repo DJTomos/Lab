@@ -184,7 +184,7 @@ configuration CertificateServices
 						return $true
 					}
 			}
-			GetScript = { @{} }
+			GetScript =  { @{} }
 			DependsOn = '[Script]CopyRoot'
 		}   
 	   
