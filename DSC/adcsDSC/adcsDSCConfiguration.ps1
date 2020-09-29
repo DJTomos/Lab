@@ -30,8 +30,7 @@ configuration CertificateServices
     #$ClearPw        = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($CertPw))
 	#$ClearDefUserPw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($UserCreds.Password))
 
-	Import-DscResource -ModuleName xComputerManagement,xNetworking,xSmbShare,xAdcsDeployment,xCertificate,PSDesiredStateConfiguration
-	Import-Module WebAdministration
+	Import-DscResource -ModuleName xComputerManagement,xNetworking,xSmbShare,xAdcsDeployment,xCertificate,PSDesiredStateConfiguration	
 
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${shortDomain}\$($Admincreds.UserName)", $Admincreds.Password)
     
@@ -124,24 +123,30 @@ configuration CertificateServices
 		Script ConfigureADCS
 		{
 			SetScript  = {	
-						$CRLURLs = "1:C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl\n6:http://$Subject`:81/certenroll/%3%8%9.crl"
-						& "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CRLPublicationURLs $CRLURLs
+						$CRLURLs = "65:C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl\n6:http://$Subject`:81/certenroll/%3%8%9.crl"
+						$crlOutput = & "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CRLPublicationURLs $CRLURLs
+						$crlOutput | out-file -filepath c:\tom\crl.txt
 						$AIAURLs = "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt\n2:http://$Subject`:81/certEnroll/%1_%3%4.crt"
-						& "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CACertPublicationURLs $AIAURLs
+						$aiaOutput = & "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CACertPublicationURLs $AIAURLs
+						$aiaOutput | out-file -filepath c:\tom\aia.txt
 
 						Restart-Service -Name CertSvc
 								
 			}							
 			
-			TestScript = {					
-					$crl = Get-CACrlDistributionPoint
-					if($crl -eq $null)
+			TestScript = {	
+					$d         = $($using:shortDomain).ToLower()
+					$c         = $($using:ComputerName).ToUpper()
+					$shortname = "$d-$c-CA"
+					$CRLURL = "6:http://$Subject`:81/certenroll/%3%8%9.crl"				
+					$crl = (Get-ItemProperty -path "HKLM:\system\CurrentControlSet\Services\CertSvc\Configuration\$shortname").CRLPublicationURLs[1]
+					if($crl -eq $CRLURL)
 					{
-						return $false
+						return $true
 					}
 					else
 					{
-						return $true
+						return $false
 					}
 			}
 			GetScript =  { @{} }
