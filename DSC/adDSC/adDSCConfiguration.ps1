@@ -60,12 +60,11 @@ configuration DomainController
 
         Script CreateDMZDNS
     	{
-			SetScript  = {
-                            md c:\tom -ErrorAction Ignore
+			SetScript  = {                            
 							$IPAddress = $using:ADFSIPAddress														
 							$ZoneName = $using:subject
-							Add-DnsServerPrimaryZone -Name $ZoneName -ReplicationScope Forest -PassThru | out-file -FilePath "C:\tom\primary.txt"
-							Add-DnsServerResourceRecordA -ZoneName $ZoneName -Name "@" -AllowUpdateAny -IPv4Address $IPAddress | out-file -FilePath "C:\tom\Arec.txt"
+							Add-DnsServerPrimaryZone -Name $ZoneName -ReplicationScope "Forest" -PassThru
+							Add-DnsServerResourceRecordA -ZoneName $ZoneName -Name "@" -AllowUpdateAny -IPv4Address $IPAddress
 							}
 
 			GetScript =  { @{} }
@@ -73,7 +72,8 @@ configuration DomainController
 				$ZoneName = $using:subject
 				$Zone = Get-DnsServerZone -Name $ZoneName -ErrorAction SilentlyContinue
 				return ($Zone -ne $null)
-			}
+            }
+            DependsOn = '[WindowsFeature]RSAT-ADCS-Mgmt'
 		}    		
 		
 <#
