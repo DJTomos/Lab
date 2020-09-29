@@ -1,14 +1,7 @@
 {
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
   "contentVersion": "1.0.0.0",
-  "parameters": {
-    "deploymentNumber": {
-      "type": "string",
-      "defaultValue": "1",
-      "metadata": {
-        "description": "When deploying the stack N times, define the instance - this will be appended to some resource names to avoid collisions."
-      }
-    },
+  "parameters": {    
     "virtualNetworkName": {
       "type": "string",
       "defaultValue": "vnet",

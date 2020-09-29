@@ -289,26 +289,12 @@
               "Name": "ADFSIPAddress",
               "Value": "[parameters('adfsIP')]",
               "TypeName": "System.String"
-            },
-            {
-              "Name": "usersArray",
-              "Value": "[parameters('usersArray')]",
-              "TypeName": "System.Object"
-            },
-            {
-              "Name": "UserCreds",
-              "Value": {
-                "UserName": "user",
-                "Password": "PrivateSettingsRef:UserPassword"
-              },
-              "TypeName": "System.Management.Automation.PSCredential"
             }
           ]
         },
         "protectedSettings": {
           "Items": {
-            "AdminPassword": "[parameters('adminPassword')]",
-            "UserPassword": "[parameters('defaultUserPassword')]"
+            "AdminPassword": "[parameters('adminPassword')]"
           }
         }
       }
