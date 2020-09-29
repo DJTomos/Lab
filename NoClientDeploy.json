@@ -25,37 +25,7 @@
       "type": "string",
       "defaultValue": "TST",
       "metadata": { "description": "Prefix for hostname of VMs" }
-    },
-    "usersArray": {
-      "type": "array",
-      "defaultValue": [
-        {
-          "FName": "Bob",
-          "LName": "Jones",
-          "SAM": "bjones"
-        },
-        {
-          "FName": "Bill",
-          "LName": "Smith",
-          "SAM": "bsmith"
-        },
-        {
-          "FName": "Mary",
-          "LName": "Phillips",
-          "SAM": "mphillips"
-        },
-        {
-          "FName": "Sue",
-          "LName": "Jackson",
-          "SAM": "sjackson"
-        }
-      ],
-      "metadata": { "description": "JSON object array of users that will be loaded into AD once the domain is established." }
-    },
-    "defaultUserPassword": {
-      "type": "securestring",
-      "metadata": { "description": "Enter the password that will be applied to each user account to be created in AD." }
-    },
+    },   
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_A2_v2",
@@ -124,7 +94,7 @@
     "imageOffer": "WindowsServer",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageSKU": "2019-Datacenter",
-    "publicIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-adfs'))]",
+    "publicIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-wap'))]",
     "rdpIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-adfs-rdp'))]",
     "storageAccountType": "Standard_LRS",
     "wapVMName": "[toupper(concat(parameters('machinePrefix'), variables('wapVMNameSuffix')))]",
@@ -300,11 +270,6 @@
       }
     }, 
 
-
-
-
-
-
     {
       "name": "[concat(variables('adcsVMName'),'-VM')]",
       "type": "Microsoft.Resources/deployments",
@@ -371,7 +336,196 @@
           }
         }
       }
+    },
+
+
+
+
+
+
+    {
+      "name": "[concat(variables('adfsVMName'),'-VM')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [                
+        "[concat('Microsoft.Compute/virtualMachines/', variables('adcsVMName'),'/extensions/Microsoft.Powershell.DSC')]" 
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": { "uri": "[variables('adfsTemplateURI')]" },
+        "parameters": {
+          "adfsIP": { "value": "[parameters('adfsIP')]" },
+          "adSubnetName": { "value": "[variables('adSubnetName')]" },
+          "adfsVMName": { "value": "[variables('adfsVMName')]" },
+          "adDomainName": { "value": "[parameters('adDomainName')]" },
+          "adminPassword": { "value": "[parameters('adminPassword')]" },
+          "adminUsername": { "value": "[parameters('adminUsername')]" },
+          "assetlocation": { "value": "[parameters('assetLocation')]" },
+          "dmzSubnetName": { "value": "[variables('dmzSubnetName')]" },
+          "dmzNSGName": { "value": "[variables('dmzNSGName')]" },
+          "location": { "value": "[variables('location')]" },
+          "networkInterfaceName": { "value": "[variables('NetworkInterfaceName')]" },
+          "publicIPAddressDNSName": { "value": "[variables('publicIPAddressDNSName')]" },
+          "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
+          "vmSize": { "value": "[parameters('vmSize')]" },
+          "wapVMName": { "value": "[variables('wapVMName')]" }
+        }
+      }
+    },
+    {
+      "name": "[concat(variables('adfsVMName'), '/Microsoft.Powershell.DSC')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[variables('location')]",
+      "apiVersion": "2015-06-15",      
+      "dependsOn": [        
+        "[concat('Microsoft.Resources/Deployments/',variables('adfsVMName'),'-VM')]"      
+      ],
+      "tags": {
+        "displayName": "adfsDSC"
+      },
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.21",
+        "autoUpgradeMinorVersion": true,
+        "forceUpdateTag": "1.01",
+        "settings": {
+          "modulesUrl": "[variables('adfsDSCTemplate')]",
+          "configurationFunction": "[variables('adfsDSCConfigurationFunction')]",
+          "properties": [
+            {
+              "Name": "AdminCreds",
+              "Value": {
+                "UserName": "[parameters('adminUsername')]",
+                "Password": "PrivateSettingsRef:AdminPassword"
+              },
+              "TypeName": "System.Management.Automation.PSCredential"
+            },
+            {
+              "Name": "ADCSname",
+              "Value": "[variables('adcsVMName')]",
+              "TypeName": "System.String"
+            }
+          ]
+        },
+        "protectedSettings": {
+          "Items": {
+            "AdminPassword": "[parameters('adminPassword')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat(variables('adfsVMName'), '/InstallADFS')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[variables('location')]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [                
+        "[concat('Microsoft.Compute/virtualMachines/', variables('adfsVMName'),'/extensions/Microsoft.Powershell.DSC')]"
+      ],      
+      "tags": {
+        "displayName": "DeployADFSFarm"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.9",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[variables('DeployADFSFarmTemplateUri')]"
+          ],
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('DeployADFSFarmTemplate'), ' -Acct ', parameters('adminUsername'), ' -PW ', parameters('adminPassword'), ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
+        }
+      }
+    },  
+
+
+
+
+
+
+
+    {
+      "name": "[concat(variables('wapVMName'),'-VM')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [                
+        "[concat('Microsoft.Compute/virtualMachines/', variables('adcsVMName'),'/extensions/Microsoft.Powershell.DSC')]" 
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": { "uri": "[variables('wapTemplateURI')]" },
+        "parameters": {
+          "adfsIP": { "value": "[parameters('adfsIP')]" },
+          "adSubnetName": { "value": "[variables('adSubnetName')]" },
+          "adfsVMName": { "value": "[variables('adfsVMName')]" },
+          "adDomainName": { "value": "[parameters('adDomainName')]" },
+          "adminPassword": { "value": "[parameters('adminPassword')]" },
+          "adminUsername": { "value": "[parameters('adminUsername')]" },
+          "assetlocation": { "value": "[parameters('assetLocation')]" },
+          "dmzSubnetName": { "value": "[variables('dmzSubnetName')]" },          
+          "location": { "value": "[variables('location')]" },
+          "networkInterfaceName": { "value": "[variables('NetworkInterfaceName')]" },
+          "publicIPAddressDNSName": { "value": "[variables('publicIPAddressDNSName')]" },
+          "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
+          "vmSize": { "value": "[parameters('vmSize')]" },
+          "wapVMName": { "value": "[variables('wapVMName')]" }
+        }
+      }
+    },   
+    {
+      "name": "[concat(variables('wapVMName'),'/Microsoft.Powershell.DSC')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[variables('location')]",
+      "apiVersion": "2015-06-15",      
+      "dependsOn": [
+        "[concat('Microsoft.Resources/Deployments/',variables('wapVMName'),'-VM')]" 
+      ],
+      "tags": {
+        "displayName": "wapDSCPrep"
+      },
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.21",
+        "autoUpgradeMinorVersion": false,
+        "settings": {
+          "modulesUrl": "[variables('adfsDSCTemplate')]",
+          "configurationFunction": "[variables('wapDSCConfigurationFunction')]",
+          "properties": [            
+          ]
+        }
+      }
+    },
+    {
+      "name": "[concat(variables('wapVMName'), '/CopyCertToWAP')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[variables('location')]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('wapVMName'),'/extensions/Microsoft.Powershell.DSC')]",
+        "[concat('Microsoft.Compute/virtualMachines/', variables('adfsVMName'),'/extensions/InstallADFS')]"
+      ],     
+      "tags": {
+        "displayName": "ConfigureWAP"
+      },
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.9",
+        "autoUpgradeMinorVersion": true,
+        "forceUpdateTag": "1.0.1",
+        "settings": {
+          "fileUris": [
+            "[variables('CopyCertToWAPTemplateUri')]"
+          ],
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CopyCertToWAPTemplate'), ' -ADCSFQDN ', concat(variables('adcsVMName'), '.', parameters('adDomainName')), ' -adminuser ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
+        }
+      }
     }
+
+
   ],
   "outputs": {
 
