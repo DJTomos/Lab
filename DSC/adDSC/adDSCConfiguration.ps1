@@ -58,6 +58,7 @@ configuration DomainController
             Name = 'RSAT-ADCS-Mgmt'
         }
 
+        Script CreateDMZDNS
     	{
 			SetScript  = {
                             md c:\tom -ErrorAction Ignore
