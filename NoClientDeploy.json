@@ -12,12 +12,6 @@
       "defaultValue": "localAdmin",
       "metadata": { "description": "Username to set for the local User. Cannot be \"Administrator\", \"root\" and possibly other such common account names. " }
     },
-    "deploymentNumber": {
-      "type": "string",
-      "defaultValue": "1",
-      "allowedValues": [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ],
-      "metadata": { "description": "When deploying the stack N times simultaneously, define the instance - this will be appended to some resource names to avoid collisions." }
-    },
     "adminPassword": {
       "type": "securestring",
       "metadata": { "description": "Password for the local administrator account. Cannot be \"P@ssw0rd\" and possibly other such common passwords. Must be 8 characters long and three of the following complexity requirements: uppercase, lowercase, number, special character" }
@@ -210,8 +204,7 @@
         "templateLink": { "uri": "[variables('nsgTemplateURI')]" },
         "parameters": {
           "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
-          "subnets": { "value": "[ variables('subnets') ]" },
-          "deploymentNumber": { "value": "[parameters('deploymentNumber')]" }
+          "subnets": { "value": "[ variables('subnets') ]" }
         }
       }
     },
@@ -236,8 +229,7 @@
           "location": { "value": "[variables('location')]" },
           "networkInterfaceName": { "value": "[variables('NetworkInterfaceName')]" },
           "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },
-          "vmSize": { "value": "[parameters('vmSize')]" },
-          "deploymentNumber": { "value": "[parameters('deploymentNumber')]" }
+          "vmSize": { "value": "[parameters('vmSize')]" }
         }
       }
     },
