@@ -131,14 +131,10 @@ configuration CertificateServices
 
 						$s = $using:subject	
 						$CRLURLs = "65:C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl\n6:http://$s`:81/certenroll/%3%8%9.crl"
-						$crlOutput = & "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CRLPublicationURLs $CRLURLs
-						$crlOutput | out-file -filepath c:\tom\crl.txt
+						& "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CRLPublicationURLs $CRLURLs						
 						$AIAURLs = "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt\n2:http://$s`:81/certEnroll/%1_%3%4.crt"
-						$aiaOutput = & "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CACertPublicationURLs $AIAURLs
-						$aiaOutput | out-file -filepath c:\tom\aia.txt
-
-						Restart-Service -Name CertSvc
-								
+						& "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CACertPublicationURLs $AIAURLs					
+						Restart-Service -Name CertSvc								
 			}							
 			
 			TestScript = {	
@@ -159,18 +155,7 @@ configuration CertificateServices
 			}
 			GetScript =  { @{} }
 			DependsOn = '[Script]CopyRoot'
-		}   
-
-		<#
-										
-						C:\Windows\System32\inetsrv\appcmd.exe set site "Default Web Site" /bindings:http/*:81:
-						C:\Windows\System32\inetsrv\appcmd.exe add vdir /app.name:"Default Web Site/" /path:"/CertEnroll" /physicalPath:"C:\windows\System32\CertSrv\Certenroll"
-						C:\Windows\System32\inetsrv\appcmd.exe set config "Default Web Site/CertEnroll" /section:directoryBrowse /enabled:true
-						C:\Windows\System32\inetsrv\appcmd.exe set config "Default Web Site/CertEnroll" /section:requestfiltering /allowdoubleescaping:true
-						C:\Windows\System32\iisreset.exe
-
-		#> 	
-	   
+		}   	   
 
 		xCertReq SSLCert
 		{

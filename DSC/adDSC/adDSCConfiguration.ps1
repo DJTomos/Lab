@@ -60,17 +60,18 @@ configuration DomainController
 
     	{
 			SetScript  = {
+                            md c:\tom -ErrorAction Ignore
 							$IPAddress = $using:ADFSIPAddress														
 							$ZoneName = $using:subject
-							Add-DnsServerPrimaryZone -Name $ZoneName -ReplicationScope Forest -PassThru
-							Add-DnsServerResourceRecordA -ZoneName $ZoneName -Name "@" -AllowUpdateAny -IPv4Address $IPAddress
+							Add-DnsServerPrimaryZone -Name $ZoneName -ReplicationScope Forest -PassThru | out-file -FilePath "C:\tom\primary.txt"
+							Add-DnsServerResourceRecordA -ZoneName $ZoneName -Name "@" -AllowUpdateAny -IPv4Address $IPAddress | out-file -FilePath "C:\tom\Arec.txt"
 							}
 
 			GetScript =  { @{} }
 			TestScript = { 
 				$ZoneName = $using:subject
 				$Zone = Get-DnsServerZone -Name $ZoneName -ErrorAction SilentlyContinue
-				return ($Zone -ine $null)
+				return ($Zone -ne $null)
 			}
 		}    		
 		
