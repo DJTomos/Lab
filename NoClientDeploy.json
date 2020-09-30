@@ -534,7 +534,7 @@
           "fileUris": [
             "[variables('CopyCertToWAPTemplateUri')]"
           ],
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CopyCertToWAPTemplate'), ' -ADCSFQDN ', concat(variables('adcsVMName'), '.', parameters('adDomainName')), ' -adminuser ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -useAdDomainNameForExternalDNS ', parameters('useAdDomainNameForExternalDNS'),' -DnsForestName', parameters('adDomainName'),  ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CopyCertToWAPTemplate'), ' -ADCSFQDN ', concat(variables('adcsVMName'), '.', parameters('adDomainName')), ' -adminuser ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -useAdDomainNameForExternalDNS ', parameters('useAdDomainNameForExternalDNS'),' -DnsForestName ', parameters('adDomainName'),  ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
         }
       }
     }
