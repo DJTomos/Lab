@@ -19,7 +19,7 @@
     "adDomainName": {
       "type": "string",
       "defaultValue": "TomTest",
-      "metadata": { "description": "Two-part internal AD name - short/NB name will be first part ('contoso')." }
+      "metadata": { "description": "Domain and External DNS name. e.g. contoso.com" }
     },
     "machinePrefix": {
       "type": "string",
@@ -93,8 +93,7 @@
     "cliSubnetName": "clientSubnet",
     "imageOffer": "WindowsServer",
     "imagePublisher": "MicrosoftWindowsServer",
-    "imageSKU": "2019-Datacenter",
-    "publicIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-wap'))]",
+    "imageSKU": "2019-Datacenter",    
     "rdpIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-adfs-rdp'))]",
     "storageAccountType": "Standard_LRS",
     "wapVMName": "[toupper(concat(parameters('machinePrefix'), variables('wapVMNameSuffix')))]",
@@ -116,6 +115,8 @@
     "adfsDSCTemplate": "[concat(parameters('assetLocation'),'DSC/adfsDSC.zip')]",
     "adfsDSCConfigurationFunction": "adfsDSCConfiguration.ps1\\Main",
     "wapDSCConfigurationFunction": "wapDSCConfiguration.ps1\\Main",
+    "publicIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-adfs'))]",
+    "CRLDNSName": "[tolower(concat(variables('companyNamePrefix'),'-crl'))]",
     "WAPPubIpDnsFQDN": "[concat(variables('publicIPAddressDNSName'),'.', toLower(replace(resourceGroup().location,' ','')),'.cloudapp.azure.com')]",
     "subnets": [
       {

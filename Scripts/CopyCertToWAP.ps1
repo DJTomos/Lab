@@ -26,9 +26,8 @@ md "c:\temp" -ErrorAction Ignore
 md "c:\AADLab" -ErrorAction Ignore
 
 
-if (!(Test-Path -Path "$($completeFile)0")) {
-    $cred=$using:DomainCreds
-    $PathToCert="\\$using:ADCSFQDN\src" #Cannot find path 'C:\\windows\\system32\\TSTX-CS.TomTest8.nl\\src' because it does not exist.   $PathToCert="\\$using:ADCSFQDN\src\*.pfx"
+if (!(Test-Path -Path "$($completeFile)0")) {    
+    $PathToCert="\\$ADCSFQDN\src" #Cannot find path 'C:\\windows\\system32\\TSTX-CS.TomTest8.nl\\src' because it does not exist.   $PathToCert="\\$using:ADCSFQDN\src\*.pfx"
     $drive = New-PSDrive -Name P -PSProvider FileSystem -Root $PathToCert -credential $DomainCreds
     
     #install root cert
@@ -61,6 +60,15 @@ if (!(Test-Path -Path "$($completeFile)1")) {
     New-Item -ItemType file "$($completeFile)1"
 }
 <#
+Add-WebApplicationProxyApplication
+    -BackendServerURL 'https://maps.contoso.com/'    
+    -ExternalURL 'https://maps.contoso.com/'
+    -Name 'PKI CRL'
+    -ExternalPreAuthentication PassThrough
+
+New-NetFirewallRule -DisplayName "PKI CRL Port 81" -Name "Port81" -Direction Inbound -LocalPort 81 -Protocol TCP -Action Allow -Profile Any
+
+
 if (!(Test-Path -Path "$($completeFile)2")) {
 	$Subject = $WapFqdn
 	$str = @"
