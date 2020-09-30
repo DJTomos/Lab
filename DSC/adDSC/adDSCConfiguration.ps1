@@ -34,7 +34,7 @@ configuration DomainController
             Name = 'RSAT-ADCS-Mgmt'
         }
 
-        <# #Used for internal ADFS
+        <# #Used for internal ADFS if using Azure DNS
         Script CreateDMZDNS
     	{
 			SetScript  = {                            

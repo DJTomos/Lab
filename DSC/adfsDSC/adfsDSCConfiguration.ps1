@@ -37,38 +37,21 @@ Configuration Main
             Ensure = "Present"
             Name   = "ADFS-Federation"
         }
-<#
-        xCertReq "SSLCert"
-		{
-			CARootName                = "$CARootName" 
-			CAServerFQDN              = "$ADCSFQDN"
-			Subject                   = "$Subject"
-			KeyLength                 = 2048
-			Exportable                = $true
-			ProviderName              = '"Microsoft RSA SChannel Cryptographic Provider"'
-			OID                       = '1.3.6.1.5.5.7.3.1'
-			KeyUsage                  = '0xa0'
-			CertificateTemplate       = 'WebServer'
-			AutoRenew                 = $true
-			Credential                = $DomainCreds			
-		}
-#>
         
         Script SaveCert
         {
             SetScript  = {
 				#install the certificate(s) that will be used for ADFS Service
-                $cred=$using:DomainCreds
+                
                 #$wmiDomain = $using:wmiDomain
                 #$DCName = $wmiDomain.DomainControllerName
-                $PathToCert="\\$using:ADCSFQDN\src\*.pfx"
-                $CertFile = Get-ChildItem -Path $PathToCert
-				for ($file=0; $file -lt $CertFile.Count; $file++)
-				{
-					$Subject   = $CertFile[$file].BaseName
-					$CertPath  = $CertFile[$file].FullName
-					$cert      = Import-PfxCertificate -Exportable -Password $cred.Password -CertStoreLocation cert:\localmachine\my -FilePath $CertPath
-				}
+                $cred=$using:DomainCreds
+                $PathToCert="\\$using:ADCSFQDN\src" #Cannot find path 'C:\\windows\\system32\\TSTX-CS.TomTest8.nl\\src' because it does not exist.   $PathToCert="\\$using:ADCSFQDN\src\*.pfx"
+                $drive = New-PSDrive -Name P -PSProvider FileSystem -Root $PathToCert -credential $cred
+                $CertFile = Get-ChildItem -Path "P:\*.pfx"
+                $CertPath  = $CertFile.FullName
+                Import-PfxCertificate -Exportable -Password $cred.Password -CertStoreLocation cert:\localmachine\my -FilePath $CertPath
+                Remove-PSDrive $drive	
             }
 
             GetScript =  { @{} }
@@ -76,11 +59,14 @@ Configuration Main
             TestScript = { 
                 #$wmiDomain = $using:wmiDomain
                 #$DCName = $wmiDomain.DomainControllerName
-                $PathToCert="$using:ADCSFQDN\src\*.pfx"
-                $File = Get-ChildItem -Path $PathToCert
+                $cred=$using:DomainCreds
+                $PathToCert="\\$using:ADCSFQDN\src"
+                $drive = New-PSDrive -Name P -PSProvider FileSystem -Root $PathToCert -credential $cred
+                $File = Get-ChildItem -Path "P:\*.pfx"
                 $Subject=$File.BaseName
                 $cert = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$Subject"} -ErrorAction SilentlyContinue
-                return ($cert -ine $null)   #if not null (if we have the cert) return true
+                Remove-PSDrive $drive
+                return ($cert -ne $null)   #if not null (if we have the cert) return true
             }
         }
         #>
