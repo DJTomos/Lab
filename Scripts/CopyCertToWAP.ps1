@@ -9,7 +9,7 @@
     [string]$password,
 
     [Parameter(Mandatory)]
-    [Bool]$useAdDomainNameForExternalDNS,
+    [string]$useAdDomainNameForExternalDNS,
 
     [Parameter(Mandatory)]
 	[string]$DnsForestName,
@@ -26,7 +26,7 @@ $Subject=$null
 
 [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($adminuser)", $SecPW)
 
-if($useAdDomainNameForExternalDNS)
+if($useAdDomainNameForExternalDNS -eq "true")
 {    
     $adfsFQDN = "adfs.$DnsForestName"
     $pkiFQDN = "pki.$DnsForestName"

@@ -6,7 +6,7 @@
     [string]$PW,
 
     [Parameter(Mandatory)]
-    [Bool]$useAdDomainNameForExternalDNS,
+    [string]$useAdDomainNameForExternalDNS,
 
 	[Parameter(Mandatory)]
 	[string]$WapFqdn
@@ -22,7 +22,7 @@ $DomainNetbiosName = $DomainName.split('.')[0]
 $SecPw = ConvertTo-SecureString $PW -AsPlainText -Force
 [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetbiosName}\$($Acct)", $SecPW)
 $DnsForestName = $wmidomain.DnsForestName
-if($useAdDomainNameForExternalDNS)
+if($useAdDomainNameForExternalDNS -eq "true")
 {    
     $adfsFQDN = "adfs.$DnsForestName"
 }
