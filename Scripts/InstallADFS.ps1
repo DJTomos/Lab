@@ -5,6 +5,9 @@
     [Parameter(Mandatory)]
     [string]$PW,
 
+    [Parameter(Mandatory)]
+    [Bool]$useAdDomainNameForExternalDNS,
+
 	[Parameter(Mandatory)]
 	[string]$WapFqdn
 )
@@ -12,12 +15,22 @@
 $wmiDomain = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"
 $DCName = $wmiDomain.DomainControllerName
 $ComputerName = $wmiDomain.PSComputerName
-$Subject = $WapFqdn -f $instance
 
-$DomainName=$wmiDomain.DomainName
+$DomainName = $wmiDomain.DomainName
+
 $DomainNetbiosName = $DomainName.split('.')[0]
 $SecPw = ConvertTo-SecureString $PW -AsPlainText -Force
 [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetbiosName}\$($Acct)", $SecPW)
+$DnsForestName = $wmidomain.DnsForestName
+if($useAdDomainNameForExternalDNS)
+{    
+    $adfsFQDN = "adfs.$DnsForestName"
+}
+else
+{    
+    $adfsFQDN = $WapFqdn
+}
+
 
 $identity = [Security.Principal.WindowsIdentity]::GetCurrent()  
 $principal = new-object Security.Principal.WindowsPrincipal $identity 
@@ -43,7 +56,7 @@ if (-not $elevated) {
 
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetbiosName}\$($Acct)", $SecPW)
 
-    $Subject = $WapFqdn 
+    $Subject = $adfsFQDN
 	Write-Host "Subject: $Subject"
 
     #get thumbprint of certificate

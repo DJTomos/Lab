@@ -35,13 +35,13 @@ configuration CertificateServices
 
 	if($useAdDomainNameForExternalDNS)
 	{
-		$pki = "pki.$DomainName"
-		$adfs = "adfs.$DomainName"
+		$pkiFQDN = "pki.$DomainName"
+		$adfsFQDN = "adfs.$DomainName"
 	}
 	else
 	{
-		$pki = $subject
-		$adfs = $subject
+		$pkiFQDN = $subject
+		$adfsFQDN = $subject
 	}
 
 	Import-DscResource -ModuleName xComputerManagement,xNetworking,xSmbShare,xAdcsDeployment,xCertificate,PSDesiredStateConfiguration	
@@ -142,7 +142,7 @@ configuration CertificateServices
 						& "$($ENV:SystemRoot)\System32\inetsrv\appcmd.exe" set config "Default Web Site/CertEnroll" /section:directoryBrowse /enabled:true
 						& "$($ENV:SystemRoot)\System32\inetsrv\appcmd.exe" set config "Default Web Site/CertEnroll" /section:requestfiltering /allowdoubleescaping:true
 						& "$($ENV:SystemRoot)\System32\iisreset.exe"				
-						$s = $using:pki
+						$s = $using:pkiFQDN
 						$CRLURLs = "65:C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl\n6:http://$s`:81/certenroll/%3%8%9.crl"
 						& "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CRLPublicationURLs $CRLURLs						
 						$AIAURLs = "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt\n2:http://$s`:81/certEnroll/%1_%3%4.crt"
@@ -151,7 +151,7 @@ configuration CertificateServices
 			}							
 			
 			TestScript = {	
-					$s = $using:pki
+					$s = $using:pkiFQDN
 					$d         = $($using:shortDomain).ToLower()
 					$c         = $($using:ComputerName).ToUpper()
 					$shortname = "$d-$c-CA"
@@ -175,7 +175,7 @@ configuration CertificateServices
 			CARootName                = "$CARootName"
 			CAServerFQDN              = "$ComputerName.$DomainName"
 			#Subject                   = "$Subject"
-			Subject                   = "$adfs"
+			Subject                   = "$adfsFQDN"
 			KeyLength                 = 2048
 			Exportable                = $true
 			ProviderName              = '"Microsoft RSA SChannel Cryptographic Provider"'
@@ -191,19 +191,19 @@ configuration CertificateServices
 		{
 			SetScript  = {
 						#$s = $using:subject
-						$s = $using:adfs			
+						$s = $using:adfsFQDN			
 						write-verbose "subject = $s"
 						$cert = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$s"}
 						Export-PfxCertificate -FilePath "c:\src\$s.pfx" -Cert $cert -Password $using:CertPw
 			}
 			GetScript  = { @{ 
 								#$s = $using:subject
-								$s = $using:adfs								
+								$s = $using:adfsFQDN						
 								Result = (Get-Content "C:\src\$s.pfx") } 
 			}
 			TestScript = {
 						#$s = $using:subject
-						$s = $using:adfs							
+						$s = $using:adfsFQDN							
 						return Test-Path "C:\src\$s.pfx" 
 			}
 			DependsOn  = '[xCertReq]SSLCert'

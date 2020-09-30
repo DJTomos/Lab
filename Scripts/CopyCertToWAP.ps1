@@ -8,6 +8,11 @@
     [Parameter(Mandatory)]
     [string]$password,
 
+    [Parameter(Mandatory)]
+    [Bool]$useAdDomainNameForExternalDNS,
+
+    [Parameter(Mandatory)]
+	[string]$DnsForestName,
 
 	[Parameter(Mandatory)]
 	[string]$WapFqdn
@@ -20,6 +25,17 @@ $File=$null
 $Subject=$null
 
 [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($adminuser)", $SecPW)
+
+if($useAdDomainNameForExternalDNS)
+{    
+    $adfsFQDN = "adfs.$DnsForestName"
+    $pkiFQDN = "pki.$DnsForestName"
+}
+else
+{    
+    $adfsFQDN = $WapFqdn
+    $pkiFQDN = $WapFqdn
+}
 
 $completeFile="c:\temp\prereqsComplete"
 md "c:\temp" -ErrorAction Ignore
@@ -47,7 +63,7 @@ if (!(Test-Path -Path "$($completeFile)0")) {
 
 if (!(Test-Path -Path "$($completeFile)1")) {	
 
-	$Subject = $WapFqdn
+	$Subject = $adfsFQDN
     $cert      = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$Subject"} -ErrorAction SilentlyContinue
 
     Install-WebApplicationProxy `

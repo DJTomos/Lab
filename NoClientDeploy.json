@@ -22,8 +22,12 @@
       "metadata": { "description": "Domain name. e.g. contoso.com" }
     },
     "useAdDomainNameForExternalDNS": {
-      "type": "BOOL",
-      "defaultValue": "[bool('true')]",
+      "type": "bool",
+      "defaultValue": "true",
+      "allowedValues": [
+        true,
+        false
+      ],
       "metadata": { "description": "Use the AD Domain name for external DNS e.g. adfs.contoso.com. If false, the Azure DNS will be used e.g. TST-wap.location.cloudapp.azure.com" }
     },
     "machinePrefix": {
@@ -445,7 +449,7 @@
           "fileUris": [
             "[variables('DeployADFSFarmTemplateUri')]"
           ],
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('DeployADFSFarmTemplate'), ' -Acct ', parameters('adminUsername'), ' -PW ', parameters('adminPassword'), ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('DeployADFSFarmTemplate'), ' -Acct ', parameters('adminUsername'), ' -PW ', parameters('adminPassword'), ' -useAdDomainNameForExternalDNS ', parameters('useAdDomainNameForExternalDNS'), ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
         }
       }
     },  
@@ -530,7 +534,7 @@
           "fileUris": [
             "[variables('CopyCertToWAPTemplateUri')]"
           ],
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CopyCertToWAPTemplate'), ' -ADCSFQDN ', concat(variables('adcsVMName'), '.', parameters('adDomainName')), ' -adminuser ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File ', variables('CopyCertToWAPTemplate'), ' -ADCSFQDN ', concat(variables('adcsVMName'), '.', parameters('adDomainName')), ' -adminuser ', parameters('adminUsername'), ' -password ', parameters('adminPassword'), ' -useAdDomainNameForExternalDNS ', parameters('useAdDomainNameForExternalDNS'),' -DnsForestName', parameters('adDomainName'),  ' -WapFqdn ', variables('WAPPubIpDnsFQDN'))]"
         }
       }
     }
