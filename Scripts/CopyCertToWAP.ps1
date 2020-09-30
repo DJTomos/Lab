@@ -12,7 +12,6 @@
 	[Parameter(Mandatory)]
 	[string]$WapFqdn
 )
-$instance = 1
 $ErrorActionPreference = "Stop"
 $arr = $ADCSFQDN.split('.')
 $DomainName = $arr[1]
@@ -26,31 +25,28 @@ $completeFile="c:\temp\prereqsComplete"
 md "c:\temp" -ErrorAction Ignore
 md "c:\AADLab" -ErrorAction Ignore
 
+
 if (!(Test-Path -Path "$($completeFile)0")) {
-    $PathToCert="\\$ADCSFQDN\src"
-    net use "\\$ADCSFQDN\src" $password /USER:$adminuser
-    Copy-Item -Path "$PathToCert\*.pfx" -Destination "c:\temp\" -Recurse -Force
-    Copy-Item -Path "$PathToCert\*.cer" -Destination "c:\temp\" -Recurse -Force
+    $cred=$using:DomainCreds
+    $PathToCert="\\$using:ADCSFQDN\src" #Cannot find path 'C:\\windows\\system32\\TSTX-CS.TomTest8.nl\\src' because it does not exist.   $PathToCert="\\$using:ADCSFQDN\src\*.pfx"
+    $drive = New-PSDrive -Name P -PSProvider FileSystem -Root $PathToCert -credential $DomainCreds
+    
+    #install root cert
+    $RootFile = Get-ChildItem -Path "P:\*.crt"
+    $RootPath  = $RootFile.FullName
+    Import-Certificate -CertStoreLocation Cert:\LocalMachine\Root -FilePath $RootPath
+    
+    #install the certificate that will be used for ADFS Service
+    $CertFile = Get-ChildItem -Path "P:\*.pfx"
+    $CertPath  = $CertFile.FullName
+    Import-PfxCertificate -Exportable -Password $SecPW -CertStoreLocation cert:\localmachine\my -FilePath $CertPath
+    Remove-PSDrive $drive
+    
     #record that we got this far
     New-Item -ItemType file "$($completeFile)0"
 }
 
-if (!(Test-Path -Path "$($completeFile)1")) {
-	#install root cert
-    $RootFile  = Get-ChildItem -Path "c:\temp\*.cer"
-    $RootPath  = $RootFile.FullName
-    $rootCert  = Import-Certificate -CertStoreLocation Cert:\LocalMachine\Root -FilePath $RootPath
-
-	
-	#install the certificate that will be used for ADFS Service
-    $CertFile  = Get-ChildItem -Path "c:\temp\*.pfx"
-	for ($file=0;$file -lt $CertFile.Count;$file++)
-	{
-		$Subject   = $CertFile[$file].BaseName
-		$CertPath  = $CertFile[$file].FullName
-		$cert      = Import-PfxCertificate -Exportable -Password $SecPW -CertStoreLocation cert:\localmachine\my -FilePath $CertPath
-	}
-	
+if (!(Test-Path -Path "$($completeFile)1")) {	
 
 	$Subject = $WapFqdn
     $cert      = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$Subject"} -ErrorAction SilentlyContinue
@@ -64,7 +60,7 @@ if (!(Test-Path -Path "$($completeFile)1")) {
     #record that we got this far
     New-Item -ItemType file "$($completeFile)1"
 }
-
+<#
 if (!(Test-Path -Path "$($completeFile)2")) {
 	$Subject = $WapFqdn
 	$str = @"
@@ -89,3 +85,4 @@ Start-Service -Name appproxysvc
     #record that we got this far
     New-Item -ItemType file "$($completeFile)2"
 }
+#>
