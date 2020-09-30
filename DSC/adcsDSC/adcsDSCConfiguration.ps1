@@ -11,7 +11,10 @@ configuration CertificateServices
         [System.Management.Automation.PSCredential]$AdminCreds,
 
 		[Parameter(Mandatory)]
-        [String]$Subject,
+		[String]$Subject,
+		
+		[Parameter(Mandatory)]
+        [Bool]$useAdDomainNameForExternalDNS,
 
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
@@ -29,6 +32,17 @@ configuration CertificateServices
 	#$ClearPw        = [System.Net.NetworkCredential]::new("", $CertPw).Password
     #$ClearPw        = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($CertPw))
 	#$ClearDefUserPw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($UserCreds.Password))
+
+	if($useAdDomainNameForExternalDNS)
+	{
+		$pki = "pki.$DomainName"
+		$adfs = "adfs.$DomainName"
+	}
+	else
+	{
+		$pki = $subject
+		$adfs = $subject
+	}
 
 	Import-DscResource -ModuleName xComputerManagement,xNetworking,xSmbShare,xAdcsDeployment,xCertificate,PSDesiredStateConfiguration	
 
@@ -128,8 +142,7 @@ configuration CertificateServices
 						& "$($ENV:SystemRoot)\System32\inetsrv\appcmd.exe" set config "Default Web Site/CertEnroll" /section:directoryBrowse /enabled:true
 						& "$($ENV:SystemRoot)\System32\inetsrv\appcmd.exe" set config "Default Web Site/CertEnroll" /section:requestfiltering /allowdoubleescaping:true
 						& "$($ENV:SystemRoot)\System32\iisreset.exe"				
-
-						$s = $using:subject	
+						$s = $using:pki
 						$CRLURLs = "65:C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl\n6:http://$s`:81/certenroll/%3%8%9.crl"
 						& "$($ENV:SystemRoot)\System32\certutil.exe" -setreg CA\CRLPublicationURLs $CRLURLs						
 						$AIAURLs = "1:C:\Windows\system32\CertSrv\CertEnroll\%1_%3%4.crt\n2:http://$s`:81/certEnroll/%1_%3%4.crt"
@@ -138,7 +151,7 @@ configuration CertificateServices
 			}							
 			
 			TestScript = {	
-					$s = $using:subject	
+					$s = $using:pki
 					$d         = $($using:shortDomain).ToLower()
 					$c         = $($using:ComputerName).ToUpper()
 					$shortname = "$d-$c-CA"
@@ -161,7 +174,8 @@ configuration CertificateServices
 		{
 			CARootName                = "$CARootName"
 			CAServerFQDN              = "$ComputerName.$DomainName"
-			Subject                   = "$Subject"
+			#Subject                   = "$Subject"
+			Subject                   = "$adfs"
 			KeyLength                 = 2048
 			Exportable                = $true
 			ProviderName              = '"Microsoft RSA SChannel Cryptographic Provider"'
@@ -176,17 +190,20 @@ configuration CertificateServices
 		Script SaveCert
 		{
 			SetScript  = {
-						$s = $using:subject			
+						#$s = $using:subject
+						$s = $using:adfs			
 						write-verbose "subject = $s"
 						$cert = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$s"}
 						Export-PfxCertificate -FilePath "c:\src\$s.pfx" -Cert $cert -Password $using:CertPw
 			}
 			GetScript  = { @{ 
-								$s = $using:subject								
+								#$s = $using:subject
+								$s = $using:adfs								
 								Result = (Get-Content "C:\src\$s.pfx") } 
 			}
 			TestScript = {
-						$s = $using:subject							
+						#$s = $using:subject
+						$s = $using:adfs							
 						return Test-Path "C:\src\$s.pfx" 
 			}
 			DependsOn  = '[xCertReq]SSLCert'
