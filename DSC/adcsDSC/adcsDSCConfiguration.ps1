@@ -14,7 +14,7 @@ configuration CertificateServices
 		[String]$Subject,
 		
 		[Parameter(Mandatory)]
-        [Bool]$useAdDomainNameForExternalDNS,
+        [String]$useAdDomainNameForExternalDNS,
 
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
@@ -33,7 +33,7 @@ configuration CertificateServices
     #$ClearPw        = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($CertPw))
 	#$ClearDefUserPw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($UserCreds.Password))
 
-	if($useAdDomainNameForExternalDNS)
+	if($useAdDomainNameForExternalDNS -eq "true")
 	{
 		$pkiFQDN = "pki.$DomainName"
 		$adfsFQDN = "adfs.$DomainName"

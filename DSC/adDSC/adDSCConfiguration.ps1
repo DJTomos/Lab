@@ -17,7 +17,7 @@ configuration DomainController
         [String]$ADCSIPAddress,
 
         [Parameter(Mandatory)]
-        [Bool]$useAdDomainNameForExternalDNS,
+        [String]$useAdDomainNameForExternalDNS,
 
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
@@ -45,7 +45,7 @@ configuration DomainController
         Script CreateDNSRecords
     	{
 			SetScript  = {   
-                            if($using:useAdDomainNameForExternalDNS -eq $true)
+                            if($using:useAdDomainNameForExternalDNS -eq "true")
                             {
                                 $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
                                 $DomainName     = $wmidomain.DnsForestName
@@ -65,7 +65,7 @@ configuration DomainController
                         }
 			GetScript =  { @{} }
 			TestScript = { 
-                            if($useAdDomainNameForExternalDNS -eq $true)
+                            if($useAdDomainNameForExternalDNS -eq "true")
                             {
                                 $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
                                 $DomainName     = $wmidomain.DnsForestName
@@ -78,6 +78,7 @@ configuration DomainController
                                 $Zone = Get-DnsServerZone -Name $ZoneName -ErrorAction SilentlyContinue
                                 return ($Zone -ne $null)
                                 #>
+                                return $true
                             }
             }
             DependsOn = '[WindowsFeature]RSAT-ADCS-Mgmt'

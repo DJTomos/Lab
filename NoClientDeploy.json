@@ -22,7 +22,7 @@
       "metadata": { "description": "Domain name. e.g. contoso.com" }
     },
     "useAdDomainNameForExternalDNS": {
-      "type": "bool",
+      "type": "string",
       "defaultValue": "true",
       "allowedValues": [
         true,
@@ -277,7 +277,7 @@
             {
               "Name": "useAdDomainNameForExternalDNS",
               "Value": "[parameters('useAdDomainNameForExternalDNS')]",
-              "TypeName": "System.Bool"
+              "TypeName": "System.String"
             } 
           ]
         },
@@ -350,7 +350,7 @@
             {
               "Name": "useAdDomainNameForExternalDNS",
               "Value": "[parameters('useAdDomainNameForExternalDNS')]",
-              "TypeName": "System.Bool"
+              "TypeName": "System.String"
             }                        
           ]
         },
