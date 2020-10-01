@@ -45,7 +45,7 @@ configuration DomainController
         Script CreateDNSRecords
     	{
 			SetScript  = {   
-                            if($using:useAdDomainNameForExternalDNS)
+                            if($using:useAdDomainNameForExternalDNS -eq $true)
                             {
                                 $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
                                 $DomainName     = $wmidomain.DnsForestName
@@ -65,7 +65,7 @@ configuration DomainController
                         }
 			GetScript =  { @{} }
 			TestScript = { 
-                            if($useAdDomainNameForExternalDNS)
+                            if($useAdDomainNameForExternalDNS -eq $true)
                             {
                                 $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
                                 $DomainName     = $wmidomain.DnsForestName
