@@ -268,7 +268,17 @@
               "Name": "ADFSIPAddress",
               "Value": "[parameters('adfsIP')]",
               "TypeName": "System.String"
-            }
+            },
+            {
+              "Name": "ADCSIPAddress",
+              "Value": "[parameters('adcsIP')]",
+              "TypeName": "System.String"
+            },
+            {
+              "Name": "useAdDomainNameForExternalDNS",
+              "Value": "[parameters('useAdDomainNameForExternalDNS')]",
+              "TypeName": "System.Bool"
+            } 
           ]
         },
         "protectedSettings": {

@@ -13,10 +13,17 @@ configuration DomainController
         [Parameter(Mandatory)]
         [String]$ADFSIPAddress,
 
+        [Parameter(Mandatory)]
+        [String]$ADCSIPAddress,
+
+        [Parameter(Mandatory)]
+        [Bool]$useAdDomainNameForExternalDNS,
+
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     )
     
+
 
     Import-DscResource -ModuleName xComputerManagement,xNetworking,xSmbShare,xAdcsDeployment,xCertificate,PSDesiredStateConfiguration
     
@@ -34,25 +41,48 @@ configuration DomainController
             Name = 'RSAT-ADCS-Mgmt'
         }
 
-        <# #Used for internal ADFS if using Azure DNS
-        Script CreateDMZDNS
+       
+        Script CreateDNSRecords
     	{
-			SetScript  = {                            
-							$IPAddress = $using:ADFSIPAddress														
-							$ZoneName = $using:subject
-							Add-DnsServerPrimaryZone -Name $ZoneName -ReplicationScope "Forest" -PassThru
-							Add-DnsServerResourceRecordA -ZoneName $ZoneName -Name "@" -AllowUpdateAny -IPv4Address $IPAddress
-							}
-
+			SetScript  = {   
+                            if($using:useAdDomainNameForExternalDNS)
+                            {
+                                $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
+                                $DomainName     = $wmidomain.DnsForestName
+                                Add-DnsServerResourceRecordA -ZoneName $DomainName -Name "adfs" -AllowUpdateAny -IPv4Address $using:ADFSIPAddress
+                                Add-DnsServerResourceRecordA -ZoneName $DomainName -Name "pki" -AllowUpdateAny -IPv4Address $using:ADCSIPAddress
+                            }
+                            else
+                            {                                
+                                #Used for internal ADFS if using Azure DNS                         
+                                <#
+                                $IPAddress = $using:ADFSIPAddress														
+                                $ZoneName = $using:subject
+                                Add-DnsServerPrimaryZone -Name $ZoneName -ReplicationScope "Forest" -PassThru
+                                Add-DnsServerResourceRecordA -ZoneName $ZoneName -Name "@" -AllowUpdateAny -IPv4Address $IPAddress
+                                #>
+                            }
+                        }
 			GetScript =  { @{} }
 			TestScript = { 
-				$ZoneName = $using:subject
-				$Zone = Get-DnsServerZone -Name $ZoneName -ErrorAction SilentlyContinue
-				return ($Zone -ne $null)
+                            if($useAdDomainNameForExternalDNS)
+                            {
+                                $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
+                                $DomainName     = $wmidomain.DnsForestName
+                                return ((Resolve-DnsName "adfs.$DomainName").ipaddress -eq $using:ADFSIPAddress)
+                            }
+                            else
+                            {        
+                                <#
+                                $ZoneName = $using:subject
+                                $Zone = Get-DnsServerZone -Name $ZoneName -ErrorAction SilentlyContinue
+                                return ($Zone -ne $null)
+                                #>
+                            }
             }
             DependsOn = '[WindowsFeature]RSAT-ADCS-Mgmt'
         }  
-        #>  		
+         		
 		
 <#        
         Script UpdateAdfsSiteGPO
