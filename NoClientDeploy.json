@@ -25,8 +25,8 @@
       "type": "string",
       "defaultValue": "true",
       "allowedValues": [
-        true,
-        false
+        "true",
+        "false"
       ],
       "metadata": { "description": "Use the AD Domain name for external DNS e.g. adfs.contoso.com. If false, the Azure DNS will be used e.g. TST-wap.location.cloudapp.azure.com" }
     },
