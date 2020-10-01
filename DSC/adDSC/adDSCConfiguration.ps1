@@ -49,8 +49,8 @@ configuration DomainController
                             {
                                 $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
                                 $DomainName     = $wmidomain.DnsForestName
-                                Add-DnsServerResourceRecordA -ZoneName $DomainName -Name "adfs" -AllowUpdateAny -IPv4Address $using:ADFSIPAddress
-                                Add-DnsServerResourceRecordA -ZoneName $DomainName -Name "pki" -AllowUpdateAny -IPv4Address $using:ADCSIPAddress
+                                Add-DnsServerResourceRecordA -ZoneName $DomainName -Name "adfs" -AllowUpdateAny -IPv4Address $using:ADFSIPAddress | Out-File -FilePath "C:\temp\dns1.txt"
+                                Add-DnsServerResourceRecordA -ZoneName $DomainName -Name "pki" -AllowUpdateAny -IPv4Address $using:ADCSIPAddress | Out-File -FilePath "C:\temp\dns2.txt"
                             }
                             else
                             {                                
@@ -65,7 +65,7 @@ configuration DomainController
                         }
 			GetScript =  { @{} }
 			TestScript = { 
-                            if($useAdDomainNameForExternalDNS -eq "true")
+                            if($using:useAdDomainNameForExternalDNS -eq "true")
                             {
                                 $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
                                 $DomainName     = $wmidomain.DnsForestName
