@@ -21,13 +21,11 @@
       "defaultValue": "TomTest",
       "metadata": { "description": "Domain name. e.g. contoso.com" }
     },
+    
     "useAdDomainNameForExternalDNS": {
       "type": "string",
       "defaultValue": "true",
-      "allowedValues": [
-        "true",
-        "false"
-      ],
+      "allowedValues": [ "true", "false" ],
       "metadata": { "description": "Use the AD Domain name for external DNS e.g. adfs.contoso.com. If false, the Azure DNS will be used e.g. TST-wap.location.cloudapp.azure.com" }
     },
     "machinePrefix": {
