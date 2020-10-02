@@ -70,11 +70,11 @@ if (!(Test-Path -Path "$($completeFile)1")) {
     New-NetFirewallRule -DisplayName "PKI CRL Port 81" -Name "Port81" -Direction Inbound -LocalPort 81 -Protocol TCP -Action Allow -Profile Any
     if($useAdDomainNameForExternalDNS -eq "true")
     { 
-        Add-WebApplicationProxyApplication -BackendServerURL 'https://$pkiFQDN/' -ExternalURL 'https://$pkiFQDN/' -Name 'PKI CRL' -ExternalPreAuthentication PassThrough
+        Add-WebApplicationProxyApplication -BackendServerURL "http://$pkiFQDN`:81/" -ExternalURL "http://$pkiFQDN`:81/" -Name 'PKI CRL' -ExternalPreAuthentication PassThrough
     }
     else 
     {
-        Add-WebApplicationProxyApplication -BackendServerURL 'https://$ADCSFQDN/' -ExternalURL 'https://$pkiFQDN/' -Name 'PKI CRL' -ExternalPreAuthentication PassThrough
+        Add-WebApplicationProxyApplication -BackendServerURL "http://$ADCSFQDN`:81/" -ExternalURL "http://$pkiFQDN`:81/" -Name 'PKI CRL' -ExternalPreAuthentication PassThrough
     }
     
     #record that we got this far
