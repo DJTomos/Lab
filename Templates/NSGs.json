@@ -443,6 +443,20 @@
               "priority": 198,
               "direction": "Inbound"
             }
+          },
+          {
+            "name": "Allow_CRL_to_AD_Servers",
+            "properties": {
+              "description": "Allow CRL/web sessions within the vNet",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "81",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "[variables('adSubnetRange')]",
+              "access": "Allow",
+              "priority": 199,
+              "direction": "Inbound"
+            }
           }
         ]
       }
@@ -482,6 +496,20 @@
               "destinationAddressPrefix": "[variables('dmzSubnetRange')]",
               "access": "Allow",
               "priority": 103,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "allow_CRL_from_Internet",
+            "properties": {
+              "description": "Allow communication between Internet-facing LB and WAP for CRL",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "81",
+              "sourceAddressPrefix": "Internet",
+              "destinationAddressPrefix": "[variables('dmzSubnetRange')]",
+              "access": "Allow",
+              "priority": 104,
               "direction": "Inbound"
             }
           }

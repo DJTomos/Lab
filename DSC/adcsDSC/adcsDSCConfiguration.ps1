@@ -137,6 +137,7 @@ configuration CertificateServices
 		Script ConfigureADCS
 		{
 			SetScript  = {
+						New-NetFirewallRule -DisplayName "PKI CRL Port 81" -Name "CRLPort81" -Direction Inbound -LocalPort 81 -Protocol TCP -Action Allow -Profile Any		
 						& "$($ENV:SystemRoot)\System32\inetsrv\appcmd.exe" set site "Default Web Site" /bindings:http/*:81:
 						& "$($ENV:SystemRoot)\System32\inetsrv\appcmd.exe" add vdir /app.name:"Default Web Site/" /path:"/CertEnroll" /physicalPath:"C:\windows\System32\CertSrv\Certenroll"
 						& "$($ENV:SystemRoot)\System32\inetsrv\appcmd.exe" set config "Default Web Site/CertEnroll" /section:directoryBrowse /enabled:true

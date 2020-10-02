@@ -66,10 +66,7 @@ if (!(Test-Path -Path "$($completeFile)1")) {
 	$Subject = $adfsFQDN
     $cert      = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$Subject"} -ErrorAction SilentlyContinue
 
-    Install-WebApplicationProxy `
-        -FederationServiceTrustCredential $DomainCreds `
-        -CertificateThumbprint $cert.Thumbprint`
-        -FederationServiceName $Subject
+    Install-WebApplicationProxy -FederationServiceTrustCredential $DomainCreds -CertificateThumbprint $cert.Thumbprint -FederationServiceName $Subject
 
 	
     #record that we got this far
