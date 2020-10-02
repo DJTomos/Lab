@@ -67,6 +67,7 @@ if (!(Test-Path -Path "$($completeFile)1")) {
     $cert      = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$Subject"} -ErrorAction SilentlyContinue
 
     Install-WebApplicationProxy -FederationServiceTrustCredential $DomainCreds -CertificateThumbprint $cert.Thumbprint -FederationServiceName $Subject
+    
     New-NetFirewallRule -DisplayName "PKI CRL Port 81" -Name "Port81" -Direction Inbound -LocalPort 81 -Protocol TCP -Action Allow -Profile Any
     if($useAdDomainNameForExternalDNS -eq "true")
     { 

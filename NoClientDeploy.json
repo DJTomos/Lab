@@ -18,10 +18,9 @@
     },
     "adDomainName": {
       "type": "string",
-      "defaultValue": "TomTest",
+      "defaultValue": "contoso.com",
       "metadata": { "description": "Domain name. e.g. contoso.com" }
-    },
-    
+    },    
     "useAdDomainNameForExternalDNS": {
       "type": "string",
       "defaultValue": "true",
@@ -30,7 +29,7 @@
     },
     "machinePrefix": {
       "type": "string",
-      "defaultValue": "TST",
+      "defaultValue": "LAB",
       "metadata": { "description": "Prefix for hostname of VMs" }
     },   
     "vmSize": {
