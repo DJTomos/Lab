@@ -69,7 +69,7 @@ configuration DomainController
                             {
                                 $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
                                 $DomainName     = $wmidomain.DnsForestName
-                                return ((Resolve-DnsName "adfs.$DomainName").ipaddress -eq $using:ADFSIPAddress)
+                                return ((Resolve-DnsName "adfs.$DomainName" -ErrorAction SilentlyContinue).ipaddress -eq $using:ADFSIPAddress)
                             }
                             else
                             {        
