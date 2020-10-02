@@ -67,19 +67,21 @@ if (!(Test-Path -Path "$($completeFile)1")) {
     $cert      = Get-ChildItem Cert:\LocalMachine\My | where {$_.Subject -eq "CN=$Subject"} -ErrorAction SilentlyContinue
 
     Install-WebApplicationProxy -FederationServiceTrustCredential $DomainCreds -CertificateThumbprint $cert.Thumbprint -FederationServiceName $Subject
-
-	
+    New-NetFirewallRule -DisplayName "PKI CRL Port 81" -Name "Port81" -Direction Inbound -LocalPort 81 -Protocol TCP -Action Allow -Profile Any
+    if($useAdDomainNameForExternalDNS -eq "true")
+    { 
+        Add-WebApplicationProxyApplication -BackendServerURL 'https://$pkiFQDN/' -ExternalURL 'https://$pkiFQDN/' -Name 'PKI CRL' -ExternalPreAuthentication PassThrough
+    }
+    else 
+    {
+        Add-WebApplicationProxyApplication -BackendServerURL 'https://$ADCSFQDN/' -ExternalURL 'https://$pkiFQDN/' -Name 'PKI CRL' -ExternalPreAuthentication PassThrough
+    }
+    
     #record that we got this far
     New-Item -ItemType file "$($completeFile)1"
 }
 <#
-Add-WebApplicationProxyApplication
-    -BackendServerURL 'https://maps.contoso.com/'    
-    -ExternalURL 'https://maps.contoso.com/'
-    -Name 'PKI CRL'
-    -ExternalPreAuthentication PassThrough
 
-New-NetFirewallRule -DisplayName "PKI CRL Port 81" -Name "Port81" -Direction Inbound -LocalPort 81 -Protocol TCP -Action Allow -Profile Any
 
 
 if (!(Test-Path -Path "$($completeFile)2")) {
