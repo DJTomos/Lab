@@ -389,6 +389,20 @@
             }
           },
           {
+            "name": "Allow_CRL_to_AD_Servers",
+            "properties": {
+              "description": "Allow CRL/web sessions within the vNet",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "81",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "[variables('adSubnetRange')]",
+              "access": "Allow",
+              "priority": 144,
+              "direction": "Inbound"
+            }
+          },
+          {
             "name": "deny_AD_Other_TCP",
             "properties": {
               "description": "deny remainder of Communications",
@@ -441,20 +455,6 @@
               "destinationAddressPrefix": "[variables('adSubnetRange')]",
               "access": "Allow",
               "priority": 198,
-              "direction": "Inbound"
-            }
-          },
-          {
-            "name": "Allow_CRL_to_AD_Servers",
-            "properties": {
-              "description": "Allow CRL/web sessions within the vNet",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "81",
-              "sourceAddressPrefix": "VirtualNetwork",
-              "destinationAddressPrefix": "[variables('adSubnetRange')]",
-              "access": "Allow",
-              "priority": 199,
               "direction": "Inbound"
             }
           }
