@@ -282,6 +282,12 @@
               "Value": "[parameters('adcsIP')]",
               "TypeName": "System.String"
             },
+            
+            {
+              "Name": "adDomain",
+              "Value": "[parameters('adDomainName')]",
+              "TypeName": "System.String"
+            },
             {
               "Name": "useAdDomainNameForExternalDNS",
               "Value": "[parameters('useAdDomainNameForExternalDNS')]",

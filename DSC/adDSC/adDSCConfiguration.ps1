@@ -17,6 +17,9 @@ configuration DomainController
         [String]$ADCSIPAddress,
 
         [Parameter(Mandatory)]
+        [String]$adDomain,
+
+        [Parameter(Mandatory)]
         [String]$useAdDomainNameForExternalDNS,
 
         [Int]$RetryCount=20,
@@ -46,9 +49,8 @@ configuration DomainController
     	{
 			SetScript  = {   
                             if($using:useAdDomainNameForExternalDNS -eq "true")
-                            {
-                                $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
-                                $DomainName     = $wmidomain.DnsForestName
+                            {                                                               
+                                $DomainName     = $using:adDomain
                                 Add-DnsServerResourceRecordA -ZoneName $DomainName -Name "adfs" -AllowUpdateAny -IPv4Address $using:ADFSIPAddress
                                 Add-DnsServerResourceRecordA -ZoneName $DomainName -Name "pki" -AllowUpdateAny -IPv4Address $using:ADCSIPAddress
                             }
@@ -67,8 +69,7 @@ configuration DomainController
 			TestScript = { 
                             if($using:useAdDomainNameForExternalDNS -eq "true")
                             {
-                                $wmiDomain      = Get-WmiObject Win32_NTDomain -Filter "DnsForestName = '$( (Get-WmiObject Win32_ComputerSystem).Domain)'"                                
-                                $DomainName     = $wmidomain.DnsForestName
+                                $DomainName     = $using:adDomain
                                 return ((Resolve-DnsName "adfs.$DomainName" -ErrorAction SilentlyContinue).ipaddress -eq $using:ADFSIPAddress)
                             }
                             else
