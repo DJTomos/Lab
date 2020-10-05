@@ -1,0 +1,195 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {    
+    "adSubnetName": {
+      "type": "string",
+      "defaultValue": "adSubnet"
+    },  
+    "mgtVMName": {
+      "type": "string",
+      "defaultValue": "AZMGT"
+    },
+    "mgtIP": {
+      "type": "string",
+      "metadata": { "description": "The IP Addresses assigned to the ADFS Server. Remember the first IP in a subnet is .4 e.g. 10.0.0.0/16 reserves 10.0.0.0-3. Specify one IP per server - must match numberofVMInstances or deployment will fail.s" },
+      "defaultValue": "10.0.1.7"
+    },  
+    "adDomainName": {
+      "type": "string",
+      "defaultValue": "contoso.com"
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Admin username"
+      }
+    },
+    "assetLocation": {
+      "type": "string"
+    },    
+    "location": {
+      "type": "string",
+      "metadata": {
+        "Description": "The region to deploy the resources into"
+      }
+    },
+    "NetworkInterfaceName": {
+      "type": "string",
+      "defaultValue": "NIC",
+      "metadata": {
+        "description": "This is the prefix name of the Network interfaces"
+      }
+    },
+    "publicIPAddressDNSName": {
+      "type": "string"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "vnet"
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D1_v2",
+      "metadata": {
+        "description": "This is the allowed list of VM sizes"
+      }
+    }
+  },
+  "variables": {    
+    "shortDomainName": "[split(parameters('adDomainName'),'.')[0]]", 
+    "mgtNICName": "[concat('mgt-',parameters('NetworkInterfaceName'))]",      
+    "adSubnetID": "[concat(variables('vnetID'),'/subnets/',parameters('adSubnetName'))]",
+    "apiVersion": "2015-06-15",
+    "computeApiVersion": "2016-04-30-preview",    
+    "domainJoinOptions": "3",
+    "imageOffer": "WindowsServer",
+    "imagePublisher": "MicrosoftWindowsServer",
+    "imageSKU": "2019-Datacenter",
+    "mgtPubIPName": "adPubIP",  
+    "publicIPAddressDNSName": "[tolower(parameters('publicIPAddressDNSName'))]",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
+  },
+  "resources": [ 
+    {
+      "name": "[variables('mgtPubIPName')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "location": "[parameters('location')]",
+      "apiVersion": "2015-06-15",
+      "tags": {
+        "displayName": "mgtPubIP"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[tolower(variables('publicIPAddressDNSName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('mgtNicName')]",
+      "location": "[parameters('location')]",
+      "tags": { "displayName": "mgtNIC" },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('mgtPubIPName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "subnet": {
+                "id": "[variables('adSubnetID')]"
+              },
+              "privateIPAddress": "[parameters('mgtIP')]",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('mgtPubIPName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },    
+    {
+      "apiVersion": "[variables('computeApiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('mgtVMName')]",
+      "location": "[parameters('location')]",    
+      "tags": { "displayName": "mgtVM" },
+      "dependsOn": [
+        "[variables('mgtNICName')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('mgtVMName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('imageSKU')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {              
+              "id": "[resourceid('Microsoft.Network/networkInterfaces', variables('mgtNICName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+      ]
+    },
+    {
+      "apiVersion": "[variables('apiVersion')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('mgtVMName'), '/joindomain')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[parameters('mgtVMName')]"
+      ],
+      "tags": {
+        "displayName": "mgtVMJoin",
+        "isClient": "true"
+      },     
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name": "[parameters('adDomainName')]",
+          "OUPath": "",
+          "User": "[concat(variables('shortDomainName'), '\\', parameters('adminUsername'))]",
+          "Restart": "true",
+          "Options": "[variables('domainJoinOptions')]"
+        },
+        "protectedsettings": {
+          "Password": "[parameters('adminPassword')]"
+        }
+      }
+    }    
+  ],
+  "outputs": {
+  }
+}
