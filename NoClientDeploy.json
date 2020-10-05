@@ -131,7 +131,8 @@
     "adfsDSCTemplate": "[concat(parameters('assetLocation'),'DSC/adfsDSC.zip')]",
     "adfsDSCConfigurationFunction": "adfsDSCConfiguration.ps1\\Main",
     "wapDSCConfigurationFunction": "wapDSCConfiguration.ps1\\Main",
-    "publicIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-wap'))]",    
+    "publicIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-wap'))]",  
+    "MGTPublicIPAddressDNSName": "[tolower(concat(variables('companyNamePrefix'),'-mgt'))]",       
     "WAPPubIpDnsFQDN": "[concat(variables('publicIPAddressDNSName'),'.', toLower(replace(resourceGroup().location,' ','')),'.cloudapp.azure.com')]",
     "subnets": [
       {
@@ -319,6 +320,7 @@
           "mgtVMName": { "value": "[variables('mgtVMName')]" },          
           "location": { "value": "[variables('location')]" },
           "networkInterfaceName": { "value": "[variables('NetworkInterfaceName')]" },
+          "publicIPAddressDNSName": { "value": "[variables('MGTPublicIPAddressDNSName')]" },
           "virtualNetworkName": { "value": "[variables('virtualNetworkName')]" },          
           "vmSize": { "value": "[parameters('vmSize')]" }
         }
