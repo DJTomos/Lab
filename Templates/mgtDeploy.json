@@ -72,7 +72,7 @@
     "imageOffer": "WindowsServer",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageSKU": "2019-Datacenter",
-    "mgtPubIPName": "adPubIP",  
+    "mgtPubIPName": "mgtPubIP",  
     "publicIPAddressDNSName": "[tolower(parameters('publicIPAddressDNSName'))]",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
   },
