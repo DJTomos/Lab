@@ -314,6 +314,7 @@
           "adminPassword": { "value": "[parameters('adminPassword')]" },
           "adminUsername": { "value": "[parameters('adminUsername')]" },
           "adDomainName": { "value": "[parameters('adDomainName')]" },
+          "assetlocation": { "value": "[parameters('assetLocation')]" },
           "adSubnetName": { "value": "[variables('adSubnetName')]" },
           "mgtVMName": { "value": "[variables('mgtVMName')]" },          
           "location": { "value": "[variables('location')]" },
