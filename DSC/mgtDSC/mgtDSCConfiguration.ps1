@@ -1,5 +1,18 @@
+$DscWorkingFolder = $PSScriptRoot
+
+
 Configuration Main
 {
+   param
+   (        
+        [Parameter(Mandatory)]
+        [System.Management.Automation.PSCredential]$AdminCreds,
+
+        [Int]$RetryCount=20,
+        [Int]$RetryIntervalSec=30
+    )
+
+
     Import-DscResource -ModuleName PSDesiredStateConfiguration
 
     Node localhost
